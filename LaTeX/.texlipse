@@ -1,0 +1,14 @@
+#TeXlipse project settings
+#Fri Sep 09 16:10:01 CDT 2016
+markTmpDer=true
+builderNum=2
+outputDir=output
+makeIndSty=
+bibrefDir=
+outputFormat=pdf
+tempDir=tmp
+mainTexFile=main.tex
+outputFile=Hagenson-Thesis.pdf
+langSpell=en
+markDer=true
+srcDir=src
