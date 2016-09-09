@@ -2,7 +2,8 @@
 # Note: the --squash option takes the top commit rather than the entire subtree hitory.
 
 # For the most part, subtreeing is supposed to be painless and "simply works" correctly.
-
+# The manner in which is works is that each directory has its own remote, so we can specifiy which remote to push the latest commit and changes to.
+# In the same manner, if changes have been made we can pull from each remote to our local repo.
 
 ### Pulling from remote
 git subtree pull --prefix=<path/to/code> --squash <subtree-remote-name> master
