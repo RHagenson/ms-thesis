@@ -1,0 +1,17 @@
+# A simple list of commands that help guide working with subtrees
+# Note: the --squash option takes the top commit rather than the entire subtree hitory.
+
+# For the most part, subtreeing is supposed to be painless and "simply works" correctly.
+
+
+### Pulling from remote
+git subtree pull --prefix=<path/to/code> --squash <subtree-remote-name> master
+
+# Example:
+git subtree pull --prefix=python --squash python master
+
+## Pushing to remote
+git subtree push --prefix=<path/to/code> --squash <subtree-remote-name> master
+
+# Example:
+git subtree push --prefix=python --squash python master

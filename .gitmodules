@@ -1,9 +1,0 @@
-[submodule "python"]
-	path = python
-	url = git@github.com:RHagenson/ms-thesis-Python.git
-[submodule "R"]
-	path = R
-	url = git@github.com:RHagenson/ms-thesis-R.git
-[submodule "LaTeX"]
-	path = LaTeX
-	url = git@github.com:RHagenson/ms-thesis-LaTeX.git
