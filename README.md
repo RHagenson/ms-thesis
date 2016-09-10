@@ -9,4 +9,6 @@ LaTeX: [![Build Status](https://travis-ci.org/RHagenson/ms-thesis-LaTeX.svg?bran
 # License
 [Apache License Version 2.0](./LICENSE)
 
-[Apache 2 -- LegalTLDR](https://tldrlegal.com/license/apache-license-2.0-(apache-2.0)#summary)
+<!-- Use of implicit link to escape () characters -->
+[Apache 2 -- LegalTLDR][1]
+[1]: https://tldrlegal.com/license/apache-license-2.0-(apache-2.0)
