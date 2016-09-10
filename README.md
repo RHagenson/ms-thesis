@@ -1,5 +1,5 @@
 # ms-thesis
-A repository for all the work done for my MS thesis at the University of Nebraska -- Omaha. Should have at least three subtrees: ms-thesis-Python, ms-thesis-R, and ms-thesis-LaTeX.
+A repository for all the work done for my MS thesis at the University of Nebraska -- Omaha. Should have at least three subtrees: [ms-thesis-Python](https://github.com/RHagenson/ms-thesis-Python), [ms-thesis-R](https://github.com/RHagenson/ms-thesis-R), and [ms-thesis-LaTeX](https://github.com/RHagenson/ms-thesis-LaTeX).
 
 # License
 [Apache License Version 2.0](./LICENSE)
