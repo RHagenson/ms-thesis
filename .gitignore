@@ -1,5 +1,6 @@
 # Ignore any local figures
-/figs/*
+*.pdf
+
 
 # Nohup
 nohup.out
