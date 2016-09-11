@@ -1,3 +1,9 @@
+# Ignore any local figures
+/figs/*
+
+# Nohup
+nohup.out
+
 # History files
 .Rhistory
 .Rapp.history
