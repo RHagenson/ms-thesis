@@ -1,7 +1,6 @@
 # Ignore any local figures
 *.pdf
 
-
 # Nohup
 nohup.out
 
