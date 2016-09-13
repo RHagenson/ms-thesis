@@ -5,10 +5,11 @@
 
 from getopt import GetoptError, getopt
 import sys
-from os import path, makedirs, listdir
+from os import path, makedirs, listdir, walk
 import multiprocessing
 import csv
 import re
+from distutils.dir_util import mkpath
 
 # Global variables
 dataDir = False  # Default False, should be overwritten at CLI
@@ -30,6 +31,8 @@ profilesName = "profiles"  # The name of the final mutation profile csv's dir
 # ./allMAFs
 # ./pfam30.0
 # ./profiles
+
+# ./profiles will have subdirectories based on cancer type and gene
 
 
 def main():
@@ -66,15 +69,25 @@ def main():
 def create_csv_profile((MutFile, LongShortFile)):
     """
     Run by Pool.map() with data from generate_data_pairs()
+    :type MutFile: str
     :type LongShortFile: str
     :return:
     """
     global dataDir, allMAFsName, allMutsName, \
         refSeqName, cdsName, pfamName, profilesName
 
+    # Generate profiles directory tree
+    cancerType = re.search("(\w+)\_.+\.txt", MutFile).group(1)
+    geneName = re.search("(\w+)\.\d+\.[long|short]+", LongShortFile).group(1)
+    fullPath = path.join(dataDir,
+                         profilesName,
+                         cancerType,
+                         geneName)
+    if not path.exists(fullPath):
+        mkpath(fullPath)
+
     LongShortRE = re.compile('\s+(\d+)\s+(\w+)\s+(.+)')
-    profileFile = open(path.join(dataDir, profilesName,
-                                 LongShortFile), 'w')
+    profileFile = open(path.join(fullPath, LongShortFile), 'w')
     profileCSV = csv.writer(profileFile, delimiter='\t')
 
     # Build and open the allMuts file
