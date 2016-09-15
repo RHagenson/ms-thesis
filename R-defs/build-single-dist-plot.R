@@ -1,16 +1,16 @@
-#!/usr/bin/env Rscript
 # This script takes a disorder mutation profile created by parsing TCGA data
 # and generates a .pdf with the normal disorder plot marked by the observed disorder score
 # only plots with significant P values are output.
 
-build.plot <- function(filename, number, profileDir, figsDir, pValCut=0.05, test="two") {
+build.plot <- function(filename, number, profileDir, figsDir, pValCut=0.05) {
   # p-value test options "less", "greater", and "two"
   
   CSV <- "outputs/isoformPvaluesWithTests.csv"
   
   # The parameters that will eventual change
   filename <-
-    filename # "MUC16.001.long"  # The profile being processed
+    filename # "MUC16.001.long.prof"  # The profile being processed
+  
   N = as.numeric(number) # 100000  # The number of samples to take
   
   profileDir = profileDir  # The location of where the filename is found
@@ -27,6 +27,7 @@ build.plot <- function(filename, number, profileDir, figsDir, pValCut=0.05, test
   # Determine how many mutations are present
   mutationNum <- sum(FILE$V4)
   realLevel = as.numeric(sum(FILE$V3 * FILE$V4))
+  numMutations = as.numeric(sum(FILE$V4))
   
   for (i in 1:N) {
     # Print a helpful message to the user for what is being done
@@ -35,31 +36,21 @@ build.plot <- function(filename, number, profileDir, figsDir, pValCut=0.05, test
     }
     
     normalVector <-
-      append(normalVector, round(sum(
-        sample(FILE$V3, replace = TRUE, size = mutationNum)
-      ), digits = 3))
+      append(normalVector, 
+             round(sum(sample(FILE$V3, replace = TRUE, size = mutationNum)), 
+                   digits = 3))
   }
+  
+  # Determine average disorder score from normal curve
+  avgDisorder = round(sum(normalVector) / length(normalVector), digits=5)
   
   # Generate a data frame with values and freq as percent
   frame <-
     as.data.frame(table(normalVector) / length(normalVector) * 100)
 
-  # Calculate the p-value based on given test option  
-  switch(test,
-         less={pValue <- sum(realLevel < normalVector) / length(normalVector)},
-         greater={pValue <- sum(realLevel > normalVector) / length(normalVector)},
-         two={t <- (mean(normalVector)-realLevel)/(sd(normalVector)/sqrt(length(normalVector)))
-              pValue <- 2*pt(-abs(t), df=length(normalVector)-1)},
-         stop("Not a valid test option, use 'less', 'greater', or 'two"))
-
-    # Two tail test, Method 2
-    #     a <- realLevel
-    #     s <- sd(normalVector)
-    #     n <- length(normalVector)
-    #     xbar <- mean(normalVector)
-    #     z <- (xbar-a)/(s/sqrt(n))
-    #     pValue = 2*pnorm(-abs(z))
-  
+  # Calculate the empirical p-value, using min to find whether it deviates high or lower than average 
+  pValue <- min((sum(realLevel < normalVector) / length(normalVector)), 
+                (sum(realLevel > normalVector) / length(normalVector)))
   
   # Free resources now that the vector has served its purpose
   # rm(normalVector)
@@ -72,24 +63,34 @@ build.plot <- function(filename, number, profileDir, figsDir, pValCut=0.05, test
     as.numeric(levels(frame$TotalDisOrderScore))[frame$TotalDisOrderScore]
   
   # No matter the pValue add the isoform to the results CSV
-  write.table(x=data.frame(filename,pValue,test), file=CSV, 
-                         append = TRUE, row.names = FALSE,
-                         quote = FALSE, sep=",", col.names = FALSE)
+  # Columns should be in the following order
+  #   1. isoform name
+  #   3. observed disorder score
+  #   4. average random disorder score
+  #   5. total number of mutations
+  #   6. empirical p-value
+  write.table(x=data.frame(filename, realLevel, avgDisorder, numMutations, pValue), 
+              file=CSV, append = TRUE, row.names = FALSE,
+              quote = FALSE, sep=",", col.names = FALSE)
   
-  if (pValue <= pValCut) {
+  # if (pValue <= pValCut) {
+  if (TRUE) {
     # Open the output pdf for writing, with naming based on test type
-    pdf(paste(figsDir, filename, ".", test, ".pdf", sep = ""))
+    pdf(paste(figsDir, sub(".prof", "", filename), ".pdf", sep = ""))
     
     # Plot
     plot(density(normalVector), xlab = "TotalDisorderScore", ylab = "Percent Frequency", type = "p", main =
-        filename, pch = 20
+           sub(".prof", "", filename), pch = 20
     )
     
     # Function brought to you by: http://eranraviv.com/adding-text-to-r-plot/
     Corner_text <- function(text, location="topright"){
       legend(location,legend=text, bty ="n", pch=NA) 
     }
-    Corner_text(text = paste("p-value:", pValue))
+    Corner_text(text = paste("p-value: ", pValue, "\n",
+                             "Average score: ", avgDisorder, "\n",
+                             "Observed score: ", realLevel, "\n",
+                             "Number of mutations: ", numMutations, sep=""))
     
     # Add the real value to the plot
     # points(x=c(realLevel), y=c(0.09), pch=25, col=20)
