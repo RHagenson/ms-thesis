@@ -3,13 +3,14 @@
 # Name: Ryan Hagenson
 # Email: rhagenson@unomaha.edu
 
-from getopt import GetoptError, getopt
-import sys
-from os import path, makedirs, listdir, walk
-import multiprocessing
 import csv
+import multiprocessing
 import re
+import shutil
+import sys
 from distutils.dir_util import mkpath
+from getopt import GetoptError, getopt
+from os import path, makedirs, listdir, remove
 
 # Global variables
 dataDir = False  # Default False, should be overwritten at CLI
@@ -59,9 +60,13 @@ def main():
             global dataDir
             dataDir = arg
 
-            # Create the profiles directory if it does not exist
+            # Create/empty profiles directory
             profileDir = path.join(dataDir, profilesName)
             if not path.exists(profileDir):
+                makedirs(profileDir)
+                del profileDir
+            else:
+                shutil.rmtree(profileDir)
                 makedirs(profileDir)
                 del profileDir
 
@@ -76,7 +81,9 @@ def create_csv_profile((MutFile, LongShortFile)):
     global dataDir, allMAFsName, allMutsName, \
         refSeqName, cdsName, pfamName, profilesName
 
-    # Generate profiles directory tree
+    LongShortRE = re.compile('\s+(\d+)\s+(\w+)\s+(.+)')
+
+    # Generate profiles directory tree with each cancer type and gene id
     cancerType = re.search("(\w+)\_.+\.txt", MutFile).group(1)
     geneName = re.search("(\w+)\.\d+\.[long|short]+", LongShortFile).group(1)
     fullPath = path.join(dataDir,
@@ -86,8 +93,23 @@ def create_csv_profile((MutFile, LongShortFile)):
     if not path.exists(fullPath):
         mkpath(fullPath)
 
-    LongShortRE = re.compile('\s+(\d+)\s+(\w+)\s+(.+)')
-    profileFile = open(path.join(fullPath, LongShortFile), 'w')
+    # Open each of the cancer type, gene id, and individual profile files
+    cancerFile = open(path.join(dataDir,
+                                profilesName,
+                                cancerType,
+                                cancerType + ".prof"), "a")
+    cancerCSV = csv.writer(cancerFile, delimiter='\t')
+    geneFile = open(path.join(dataDir,
+                              profilesName,
+                              cancerType,
+                              geneName,
+                              geneName + ".prof"), "a")
+    geneCSV = csv.writer(geneFile, delimiter='\t')
+    profileFile = open(path.join(dataDir,
+                                 profilesName,
+                                 cancerType,
+                                 geneName,
+                                 LongShortFile + ".prof"), 'w')
     profileCSV = csv.writer(profileFile, delimiter='\t')
 
     # Build and open the allMuts file
@@ -136,11 +158,25 @@ def create_csv_profile((MutFile, LongShortFile)):
             if LongShortMatch.group(1) in mutations:
                 posMuts = mutations[LongShortMatch.group(1)]
 
-            profileCSV.writerow([LongShortMatch.group(1),
+            # Output the individual isoform results to each of the three
+            # pertinent files. cancerCSV and geneCSV are appending, while
+            # profileCSV is writing.
+            cancerCSV.writerow([LongShortMatch.group(1),
                                 LongShortMatch.group(2),
                                 LongShortMatch.group(3),
                                 posMuts])
+            geneCSV.writerow([LongShortMatch.group(1),
+                              LongShortMatch.group(2),
+                              LongShortMatch.group(3),
+                              posMuts])
+            profileCSV.writerow([LongShortMatch.group(1),
+                                 LongShortMatch.group(2),
+                                 LongShortMatch.group(3),
+                                 posMuts])
 
+    # Be sure to release the files for other workers to take over control of
+    cancerFile.close()
+    geneFile.close()
     profileFile.close()
 
 
