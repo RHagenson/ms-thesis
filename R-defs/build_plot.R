@@ -2,8 +2,9 @@
 # and generates a .pdf with the normal disorder plot marked by the observed disorder score
 # only plots with significant P values are output.
 
-build.plot <- function(filename, number, profileDir, figsDir, pValCut=0.05) {
-  # p-value test options "less", "greater", and "two"
+build_plot <- function(filename, number, profileDir, figsDir, pValCut=0.05) {
+  # Remove trailing '/' because paste() below adds it when creating path
+  # profilesDir <- sub(pattern = "/$", replacement = "", profilesDir)
   
   CSV <- "outputs/isoformPvaluesWithTests.csv"
   
@@ -17,7 +18,7 @@ build.plot <- function(filename, number, profileDir, figsDir, pValCut=0.05) {
   figsDir = figsDir  # The location of where figures should be written, do not ending forget '/'
   
   # Read in the source file
-  path <- paste(profileDir, filename, sep = "")
+  path <- paste(profileDir, filename, sep = "/")
   
   FILE <- read.delim(path, header = FALSE)
   
