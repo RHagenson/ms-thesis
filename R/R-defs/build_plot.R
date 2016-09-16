@@ -6,7 +6,23 @@ build_plot <- function(filename, number, profileDir, figsDir, pValCut=0.05) {
   # Remove trailing '/' because paste() below adds it when creating path
   # profilesDir <- sub(pattern = "/$", replacement = "", profilesDir)
   
-  CSV <- "outputs/isoformPvaluesWithTests.csv"
+  # Generate log location and file
+  logTree <- sub(pattern = "^.+/profiles/", replacement = "", profileDir)
+  CSVPath <- paste("outputs", 
+                   logTree, 
+                   sub(pattern="*.prof", replacement = "", filename),
+                   sep="/")
+  if(! dir.exists(CSVPath)) {
+    dir.create(CSVPath, recursive = TRUE)
+  }
+  CSV <- "LOG.csv"
+  
+  # Generate PDF plot location and file
+  figsTree <- sub(pattern = "^.+/profiles/", replacement = "", profileDir)
+  pdfPath <- paste(figsDir, figsTree, sep = "/")
+  if(! dir.exists(pdfPath)){
+    dir.create(pdfPath, recursive = TRUE)  # Create path if it does not exist
+  }
   
   # The parameters that will eventual change
   filename <-
@@ -15,6 +31,7 @@ build_plot <- function(filename, number, profileDir, figsDir, pValCut=0.05) {
   N = as.numeric(number) # 100000  # The number of samples to take
   
   profileDir = profileDir  # The location of where the filename is found
+                          # Ex ~/Thesis/data/profiles/isoforms/
   figsDir = figsDir  # The location of where figures should be written, do not ending forget '/'
   
   # Read in the source file
@@ -71,13 +88,13 @@ build_plot <- function(filename, number, profileDir, figsDir, pValCut=0.05) {
   #   5. total number of mutations
   #   6. empirical p-value
   write.table(x=data.frame(filename, realLevel, avgDisorder, numMutations, pValue), 
-              file=CSV, append = TRUE, row.names = FALSE,
+              file=paste(CSVPath, CSV, sep="/"), append = TRUE, row.names = FALSE,
               quote = FALSE, sep=",", col.names = FALSE)
   
   # if (pValue <= pValCut) {
   if (TRUE) {
-    # Open the output pdf for writing, with naming based on test type
-    pdf(paste(figsDir, sub(".prof", "", filename), ".pdf", sep = ""))
+    # Open the output pdf for writing, with naming based on where the profile is from
+    pdf(paste(pdfPath, sub(".prof", ".pdf", filename), sep = ""))
     
     # Plot
     plot(density(normalVector), xlab = "TotalDisorderScore", ylab = "Percent Frequency", type = "p", main =

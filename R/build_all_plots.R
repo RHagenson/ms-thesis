@@ -12,6 +12,12 @@ library("parallel")
 # Read in commandline arguments
 args <- commandArgs(trailingOnly = TRUE)
 
+# The variables changed by CLI
+profilesDir = ""
+number=1000000
+figsDir="figs/"
+pValCut=0.05
+
 if (length(args) == 0) {
   print("Please provide the commandline arguments")
   print("Order of arguments: profilesDir, number, figsDir, pValCut")
@@ -55,7 +61,8 @@ switch(len,
          pValCut=args[4]
          }
        )
-
+unlink(figsDir, recursive = TRUE)
+unlink("outputs/", recursive = TRUE)
 
 data_pairs <- generate_data_pairs(
   profilesDir = profilesDir,

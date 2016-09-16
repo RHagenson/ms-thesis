@@ -1,8 +1,9 @@
 # Ignore any local figures
 *.pdf
 
-# Ignore any log files
-outputs/*.csv
+# Ignore any output files
+outputs/*
+figs/*
 
 # Nohup
 nohup.out
