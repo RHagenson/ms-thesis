@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # enter subtree names with space between each entry
-subtrees=(python R LaTeX)
+subtrees=(python R)
 
 echo "Number of subtrees: ${#subtrees[*]}"
 
