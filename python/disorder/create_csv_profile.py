@@ -86,14 +86,21 @@ def create_csv_profile((MutFile, LongShortFile)):
     # Generate profiles directory tree with each cancer type and gene id
     cancerType = re.search("(\w+)\_.+\.txt", MutFile).group(1)
     geneName = re.search("(\w+)\.\d+\.[long|short]+", LongShortFile).group(1)
+
+    # Create by-cancer type path
     fullPath = path.join(dataDir,
                          profilesName,
                          cancerType,
                          geneName)
+    isoformPath = path.join(dataDir,
+                            profilesName,
+                            "isoforms")
     if not path.exists(fullPath):
         mkpath(fullPath)
+        mkpath(isoformPath)
 
-    # Open each of the cancer type, gene id, and individual profile files
+    # Open each of the cancer type, gene id, isoform,
+    # and individual profile files
     cancerFile = open(path.join(dataDir,
                                 profilesName,
                                 cancerType,
@@ -105,6 +112,11 @@ def create_csv_profile((MutFile, LongShortFile)):
                               geneName,
                               geneName + ".prof"), "a")
     geneCSV = csv.writer(geneFile, delimiter='\t')
+    isoformFile = open(path.join(dataDir,
+                                 profilesName,
+                                 "isoforms",
+                                 LongShortFile + ".prof"), "a")
+    isoformCSV = csv.writer(isoformFile, delimiter='\t')
     profileFile = open(path.join(dataDir,
                                  profilesName,
                                  cancerType,
@@ -169,6 +181,10 @@ def create_csv_profile((MutFile, LongShortFile)):
                               LongShortMatch.group(2),
                               LongShortMatch.group(3),
                               posMuts])
+            isoformCSV.writerow([LongShortMatch.group(1),
+                                 LongShortMatch.group(2),
+                                 LongShortMatch.group(3),
+                                 posMuts])
             profileCSV.writerow([LongShortMatch.group(1),
                                  LongShortMatch.group(2),
                                  LongShortMatch.group(3),
