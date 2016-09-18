@@ -60,7 +60,7 @@ build_plot <- function(filename, number, profileDir, figsDir, pValCut=0.05) {
   }
   
   # Determine average disorder score from normal curve
-  avgDisorder = round(sum(normalVector) / length(normalVector), digits=5)
+  avgDisorder = round(sum(normalVector) / length(normalVector), digits=4)
   
   # Generate a data frame with values and freq as percent
   frame <-
@@ -96,8 +96,9 @@ build_plot <- function(filename, number, profileDir, figsDir, pValCut=0.05) {
     # Open the output pdf for writing, with naming based on where the profile is from
     pdf(paste(pdfPath, sub(".prof", ".pdf", filename), sep = "/"))
     
+    
     # Plot
-    plot(density(normalVector), xlab = "TotalDisorderScore", ylab = "Absolute Frequency", type = "p", main =
+    plot(density(normalVector), xlab = "Total Disorder Score", ylab = "Probability Density", type = "p", main =
            sub(".prof", "", filename), pch = 20
     )
     
