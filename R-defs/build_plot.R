@@ -91,10 +91,10 @@ build_plot <- function(filename, number, profileDir, figsDir, pValCut=0.05) {
               file=paste(CSVPath, CSV, sep="/"), append = TRUE, row.names = FALSE,
               quote = FALSE, sep=",", col.names = FALSE)
   
-  # if (pValue <= pValCut) {
-  if (TRUE) {
+  if (pValue <= pValCut) {
+  # if (TRUE) {
     # Open the output pdf for writing, with naming based on where the profile is from
-    pdf(paste(pdfPath, sub(".prof", ".pdf", filename), sep = ""))
+    pdf(paste(pdfPath, sub(".prof", ".pdf", filename), sep = "/"))
     
     # Plot
     plot(density(normalVector), xlab = "TotalDisorderScore", ylab = "Percent Frequency", type = "p", main =
