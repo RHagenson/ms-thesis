@@ -85,7 +85,7 @@ def create_csv_profile((MutFile, LongShortFile)):
 
     # Generate profiles directory tree with each cancer type and gene id
     cancerType = re.search("(\w+)\_.+\.txt", MutFile).group(1)
-    geneName = re.search("(\w+)\.\d+\.[long|short]+", LongShortFile).group(1)
+    geneName = re.search("([\w|-]+)+\.\d+\.[long|short]+", LongShortFile).group(1)
 
     # Create by-cancer type path
     fullPath = path.join(dataDir,
