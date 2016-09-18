@@ -13,56 +13,58 @@ library("parallel")
 args <- commandArgs(trailingOnly = TRUE)
 
 # The variables changed by CLI
-profilesDir = ""
-number=1000000
+profilesDir = args[1]
+number=10000
 figsDir="figs/"
 pValCut=0.05
 
-if (length(args) == 0) {
-  print("Please provide the commandline arguments")
-  print("Order of arguments: profilesDir, number, figsDir, pValCut")
-  print("At least profilesDir is needed")
-  print("Example: ~/Thesis/disorderCancer/data/profiles 100000 figs/ 0.05")
-  q()
-}
+# if (length(args) == 0) {
+#   print("Please provide the commandline arguments")
+#   print("Order of arguments: profilesDir, number, figsDir, pValCut")
+#   print("At least profilesDir is needed")
+#   print("Example: ~/Thesis/disorderCancer/data/profiles 100000 figs/ 0.05")
+#   q()
+# }
 
-len <- as.character(length(args))
+# len <- as.character(length(args))
 # Set defaults of args, at least profilesDir is needed
-switch(len,
-       "0"={
-         print("Please provide the commandline arguments")
-         print("Order of arguments: profilesDir, number, figsDir, pValCut")
-         print("At least profilesDir is needed")
-         print("Example: ~/Thesis/disorderCancer/data/profiles 100000 figs/ 0.05")
-         q()
-       },
-       "1"={
-         profilesDir = args[1]
-         number=1000000
-         figsDir="figs/"
-         pValCut=0.05
-         },
-       "2"={
-         profilesDir = args[1]
-         number = args[2]
-         figsDir="figs/"
-         pValCut=0.05
-         },
-       "3"={
-         profilesDir = args[1]
-         number = args[2]
-         figsDir = args[3]
-         pValCut=0.05
-         },
-       "4"={
-         profilesDir = args[1]
-         number = args[2]
-         figsDir = args[3]
-         pValCut=args[4]
-         }
-       )
-unlink(figsDir, recursive = TRUE)
-unlink("outputs/", recursive = TRUE)
+# switch(len,
+#        "0"={
+#          print("Please provide the commandline arguments")
+#          print("Order of arguments: profilesDir, number, figsDir, pValCut")
+#          print("At least profilesDir is needed")
+#          print("Example: ~/Thesis/disorderCancer/data/profiles 100000 figs/ 0.05")
+#          q()
+#        },
+#        "1"={
+#          profilesDir = args[1]
+#          number=1000000
+#          figsDir="figs/"
+#          pValCut=0.05
+#          },
+#        "2"={
+#          profilesDir = args[1]
+#          number = args[2]
+#          figsDir="figs/"
+#          pValCut=0.05
+#          },
+#        "3"={
+#          profilesDir = args[1]
+#          number = args[2]
+#          figsDir = args[3]
+#          pValCut=0.05
+#          },
+#        "4"={
+#          profilesDir = args[1]
+#          number = args[2]
+#          figsDir = args[3]
+#          pValCut=args[4]
+#          }
+#        )
+
+# Remove figs/ and outputs/
+unlink(figsDir, recursive = TRUE, force = TRUE)
+unlink("outputs/", recursive = TRUE, force = TRUE)
 
 data_pairs <- generate_data_pairs(
   profilesDir = profilesDir,
@@ -77,5 +79,6 @@ mcmapply(
   number = data_pairs$numberVector,
   profileDir = data_pairs$profileDirVector,
   figsDir = data_pairs$figsDirVector,
-  pValCut = data_pairs$pValCutVector
+  pValCut = data_pairs$pValCutVector,
+  mc.cores = detectCores()
 )
