@@ -97,7 +97,7 @@ build_plot <- function(filename, number, profileDir, figsDir, pValCut=0.05) {
     pdf(paste(pdfPath, sub(".prof", ".pdf", filename), sep = "/"))
     
     # Plot
-    plot(density(normalVector), xlab = "TotalDisorderScore", ylab = "Percent Frequency", type = "p", main =
+    plot(density(normalVector), xlab = "TotalDisorderScore", ylab = "Absolute Frequency", type = "p", main =
            sub(".prof", "", filename), pch = 20
     )
     
