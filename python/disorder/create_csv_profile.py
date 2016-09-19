@@ -3,14 +3,14 @@
 # Name: Ryan Hagenson
 # Email: rhagenson@unomaha.edu
 
-import csv
-import multiprocessing
-import re
-import shutil
 import sys
+from csv import reader, writer
 from distutils.dir_util import mkpath
 from getopt import GetoptError, getopt
-from os import path, makedirs, listdir, remove
+from multiprocessing import Pool
+from os import path, makedirs, listdir
+from re import search, compile
+from shutil import rmtree
 
 # Global variables
 dataDir = False  # Default False, should be overwritten at CLI
@@ -20,6 +20,7 @@ cdsName = "cds"  # The name of the cds dir in dataDir
 pfamName = "pfam30.0"  # The name of the pfam dir in dataDir
 refSeqName = "refSeq"  # The name of the refSeq dir in dataDir
 profilesName = "profiles"  # The name of the final mutation profile csv's dir
+isoformsSubDirName = "isoforms"
 
 
 # General directory tree within dataDir is:
@@ -33,7 +34,8 @@ profilesName = "profiles"  # The name of the final mutation profile csv's dir
 # ./pfam30.0
 # ./profiles
 
-# ./profiles will have subdirectories based on cancer type and gene
+# ./profiles will have subdirectories based on cancer type, then by gene id
+# ./profiles/isoforms/ contains cancer-independent profiles of all isoforms
 
 
 def main():
@@ -60,140 +62,160 @@ def main():
             global dataDir
             dataDir = arg
 
-            # Create/empty profiles directory
-            profileDir = path.join(dataDir, profilesName)
-            if not path.exists(profileDir):
-                makedirs(profileDir)
-                del profileDir
+            # Create or empty profiles directory
+            profile_dir = path.join(dataDir, profilesName)
+            if not path.exists(profile_dir):
+                makedirs(profile_dir)
+                del profile_dir
             else:
-                shutil.rmtree(profileDir)
-                makedirs(profileDir)
-                del profileDir
+                rmtree(profile_dir)
+                makedirs(profile_dir)
+                del profile_dir
 
 
-def create_csv_profile((MutFile, LongShortFile)):
+def create_csv_profile((mut_file, long_short_file)):
     """
     Run by Pool.map() with data from generate_data_pairs()
-    :type MutFile: str
-    :type LongShortFile: str
     :return:
     """
-    global dataDir, allMAFsName, allMutsName, \
-        refSeqName, cdsName, pfamName, profilesName
+    global dataDir, allMutsName, refSeqName, profilesName, isoformsSubDirName
 
-    LongShortRE = re.compile('\s+(\d+)\s+(\w+)\s+(.+)')
+    # Captures three groups:
+    # .group(1): position number
+    # .group(2): amino acid 1-letter code
+    # .group(3): disorder score
+    long_short_re = compile('\s+(\d+)\s+(\w+)\s+(.+)')
+
+    # Build and open the allMuts file
+    mut_file_handle = open(path.join(dataDir, allMutsName, mut_file), 'r')
 
     # Generate profiles directory tree with each cancer type and gene id
-    cancerType = re.search("(\w+)\_.+\.txt", MutFile).group(1)
-    geneName = re.search("([\w|-]+)+\.\d+\.[long|short]+", LongShortFile).group(1)
+    cancer_type = search("(\w+)\_.+\.txt", mut_file).group(1)
+    gene_name = search("([\w|-]+)+\.\d+\.[long|short]+",
+                       long_short_file).group(1)
 
-    # Create by-cancer type path
-    fullPath = path.join(dataDir,
-                         profilesName,
-                         cancerType,
-                         geneName)
-    isoformPath = path.join(dataDir,
-                            profilesName,
-                            "isoforms")
-    if not path.exists(fullPath):
-        mkpath(fullPath)
-        mkpath(isoformPath)
+    # Create by cancer-type and cancer-independent paths
+    full_path = path.join(dataDir,
+                          profilesName,
+                          cancer_type,
+                          gene_name)
+
+    isoform_path = path.join(dataDir,
+                             profilesName,
+                             isoformsSubDirName)
+
+    # If full_path does not exist, isoform_path should not
+    if not path.exists(full_path):
+        mkpath(full_path)
+        mkpath(isoform_path)
 
     # Open each of the cancer type, gene id, isoform,
     # and individual profile files
-    cancerFile = open(path.join(dataDir,
-                                profilesName,
-                                cancerType,
-                                cancerType + ".prof"), "a")
-    cancerCSV = csv.writer(cancerFile, delimiter='\t')
-    geneFile = open(path.join(dataDir,
-                              profilesName,
-                              cancerType,
-                              geneName,
-                              geneName + ".prof"), "a")
-    geneCSV = csv.writer(geneFile, delimiter='\t')
-    isoformFile = open(path.join(dataDir,
+    # Done as two steps each:
+    # 1) opening a file handle, and
+    # 2) passing the handle to csv.writer() to allow directed closing of the
+    # file for guaranteed resource release for other workers.
+    #
+    #
+    # cancer_file is a profile for the combination of all genes and isoforms
+    # found within that cancer
+    cancer_file = open(path.join(dataDir,
                                  profilesName,
-                                 "isoforms",
-                                 LongShortFile + ".prof"), "a")
-    isoformCSV = csv.writer(isoformFile, delimiter='\t')
-    profileFile = open(path.join(dataDir,
-                                 profilesName,
-                                 cancerType,
-                                 geneName,
-                                 LongShortFile + ".prof"), 'w')
-    profileCSV = csv.writer(profileFile, delimiter='\t')
+                                 cancer_type,
+                                 cancer_type + ".prof"), "a")
+    cancer_csv = writer(cancer_file, delimiter='\t')
 
-    # Build and open the allMuts file
-    MutFileHandle = open(path.join(dataDir, allMutsName, MutFile), 'r')
+    # gene_file is a profile for each gene that combines all its isoforms
+    gene_file = open(path.join(dataDir,
+                               profilesName,
+                               cancer_type,
+                               gene_name,
+                               gene_name + ".prof"), "a")
+    gene_csv = writer(gene_file, delimiter='\t')
+
+    # isoform_file is a profile for each isoform, independent of cancer type
+    isoform_file = open(path.join(dataDir,
+                                  profilesName,
+                                  isoformsSubDirName,
+                                  long_short_file + ".prof"), "a")
+    isoform_csv = writer(isoform_file, delimiter='\t')
+
+    # profile_file is a profile for each isoform, dependent on cancer type
+    profile_file = open(path.join(dataDir,
+                                  profilesName,
+                                  cancer_type,
+                                  gene_name,
+                                  long_short_file + ".prof"), 'w')
+    profile_csv = writer(profile_file, delimiter='\t')
 
     # Build and open the long or short file based on extension
-    if '.long' in LongShortFile:
-        LongShortFileHandle = open(path.join(dataDir, refSeqName,
-                                             "iupredLong", LongShortFile), 'r')
-    elif '.short' in LongShortFile:
-        LongShortFileHandle = open(path.join(dataDir, refSeqName,
-                                             "iupredShort", LongShortFile), 'r')
+    if '.long' in long_short_file:
+        long_short_file = open(path.join(dataDir, refSeqName,
+                                         "iupredLong", long_short_file), 'r')
+    elif '.short' in long_short_file:
+        long_short_file = open(path.join(dataDir, refSeqName,
+                                         "iupredShort", long_short_file), 'r')
     else:
-        # Break if a non LongShort file is found
+        # Break if a non long_short file is found
         sys.exit(2)
 
     # Extract the mutations from the allMuts file
-    IsoformName, LongShort = path.splitext(LongShortFile)
-    print "Processing " + str(LongShortFile)  # Inform user what is being done
-    MutCSV = csv.reader(MutFileHandle, delimiter='\t')
+    isoform_name, long_short = path.splitext(long_short_file)
+    print "Processing " + str(long_short_file)  # Inform user what is being done
+    mut_csv = reader(mut_file_handle, delimiter='\t')
     mutations = {}  # Should be {pos# : count}
-    for row in MutCSV:
+    for row in mut_csv:
         # If we have found our mutations and there are no more for this
         # isoform break the loop, depends on isoform lines being sequential
         if len(mutations) > 0:
-            if row[0] != IsoformName:
+            if row[0] != isoform_name:
                 break
 
         # Found a mutation in the protein
-        if row[0] == IsoformName:
+        if row[0] == isoform_name:
             # If the pos has a mutation, iterate or initialize it
             if row[6] in mutations:
                 mutations[row[5]] += 1
             else:
                 mutations[row[5]] = 1
 
-    # Gather the rest of the information from LongShort file
-    for line in LongShortFileHandle:
+    # Gather the rest of the information from long_short file
+    for line in long_short_file:
         # Skip comment lines at start
         if line.startswith('#'):
             continue
 
-        LongShortMatch = re.search(LongShortRE, line)
-        if LongShortMatch:
-            posMuts = 0
-            if LongShortMatch.group(1) in mutations:
-                posMuts = mutations[LongShortMatch.group(1)]
+        long_short_match = search(long_short_re, line)
+        if long_short_match:
+            pos_muts = 0
+            if long_short_match.group(1) in mutations:
+                pos_muts = mutations[long_short_match.group(1)]
 
-            # Output the individual isoform results to each of the three
-            # pertinent files. cancerCSV and geneCSV are appending, while
-            # profileCSV is writing.
-            cancerCSV.writerow([LongShortMatch.group(1),
-                                LongShortMatch.group(2),
-                                LongShortMatch.group(3),
-                                posMuts])
-            geneCSV.writerow([LongShortMatch.group(1),
-                              LongShortMatch.group(2),
-                              LongShortMatch.group(3),
-                              posMuts])
-            isoformCSV.writerow([LongShortMatch.group(1),
-                                 LongShortMatch.group(2),
-                                 LongShortMatch.group(3),
-                                 posMuts])
-            profileCSV.writerow([LongShortMatch.group(1),
-                                 LongShortMatch.group(2),
-                                 LongShortMatch.group(3),
-                                 posMuts])
+            # Output the individual isoform results to each of the
+            # pertinent files. cancer_csv, gene_csv, and isoform_csv
+            # are appending, while profile_csv is writing.
+            cancer_csv.writerow([long_short_match.group(1),
+                                 long_short_match.group(2),
+                                 long_short_match.group(3),
+                                 pos_muts])
+            gene_csv.writerow([long_short_match.group(1),
+                               long_short_match.group(2),
+                               long_short_match.group(3),
+                               pos_muts])
+            isoform_csv.writerow([long_short_match.group(1),
+                                  long_short_match.group(2),
+                                  long_short_match.group(3),
+                                  pos_muts])
+            profile_csv.writerow([long_short_match.group(1),
+                                  long_short_match.group(2),
+                                  long_short_match.group(3),
+                                  pos_muts])
 
     # Be sure to release the files for other workers to take over control of
-    cancerFile.close()
-    geneFile.close()
-    profileFile.close()
+    cancer_file.close()
+    gene_file.close()
+    isoform_file.close()
+    profile_file.close()
 
 
 def generate_data_pairs():
@@ -203,70 +225,69 @@ def generate_data_pairs():
     protein has a corresponding file in iupredLong|iupredShort, if it does it
     adds a new entry in datapairs in style ['<allMuts filename>',
     '<iupredLong prop.XXX>.long']
-    :return:
     """
-    global dataDir, allMAFsName, allMutsName, \
-        refSeqName, cdsName, pfamName
+    global dataDir, allMutsName, refSeqName
 
-    print "Generating data pairs"
+    # Define the absolute path to the allMuts directory
+    mut_loc = path.join(dataDir, allMutsName)
 
-    # Define the data file pairs, allMutsFile should be found in
-    # dataDir/allMuts/, while iupredFile should be found in either
-    # dataDir/refSeq/iupredLong/ or dataDir/refSeq/iupredShort/, which path
-    # is used is determined by the file extension (.long or .short)
-    allMutsFile = ""
-    iupredFile = ""
+    print("Generating data pairs")
 
     # Define the return iterable
     # Entries should be in form [[allMutsFile, iupredFile]]
+    # Each with full absolute path
     datapairs = []
 
-    # Collect the files in allMuts with abs pathing
-    MutFilepaths = []
-    MutLoc = path.join(dataDir, allMutsName)
-    for f in listdir(MutLoc):
-        MutFilepaths.append(path.join(MutLoc, f))
+    # Collect the files in allMuts with absolute pathing
+    mut_filepaths = []
+    for f in listdir(mut_loc):
+        mut_filepaths.append(path.join(mut_loc, f))
 
     # Process each Mut file in turn
-    for mutFile in MutFilepaths:
+    # If the gene/isoform combination has an iupred entry, create a profile
+    # for that entry
+    for mutFile in mut_filepaths:
         print "Now processing: " + mutFile
 
-        mutName = mutFile.lstrip(MutLoc)
+        mut_name = mutFile.lstrip(mut_loc)
         with open(mutFile, 'r') as FILE:
-            CSV = csv.reader(FILE, delimiter='\t')
+            csv = reader(FILE, delimiter='\t')
             past_isoform = ""
-            for row in CSV:
-                proteinIsoform = row[0]
+            for row in csv:
+                protein_isoform = row[0]
 
                 # Ensure each isoform only gets processed once by skipping
                 # repetitions
-                if proteinIsoform == past_isoform:
+                if protein_isoform == past_isoform:
                     continue
                 else:
-                    past_isoform = proteinIsoform
+                    past_isoform = protein_isoform
 
-                # Check if a file exists
-                longPath = path.join(dataDir, refSeqName,
-                                     "iupredLong", proteinIsoform + ".long")
-                shortPath = path.join(dataDir, refSeqName,
-                                      "iupredShort", proteinIsoform + ".short")
+                # Check if a long, short, or both files exist
+                long_path = path.join(dataDir, refSeqName,
+                                      "iupredLong", protein_isoform + ".long")
+                short_path = path.join(dataDir, refSeqName,
+                                       "iupredShort",
+                                       protein_isoform + ".short")
 
-                if path.exists(longPath):
-                    datapairs.append([mutName, proteinIsoform + ".long"])
-                elif path.exists(shortPath):
-                    datapairs.append([mutName, proteinIsoform + ".short"])
+                # Create a new datapairs entry for each file found
+                if path.exists(long_path):
+                    datapairs.append([mut_name, protein_isoform + ".long"])
+                elif path.exists(short_path):
+                    datapairs.append([mut_name, protein_isoform + ".short"])
 
+    # Once all the allMuts files have been fully processed, return the datapairs
     return datapairs
 
 
 if __name__ == "__main__":
+    # Run the CLI wrapper
     main()
 
-    # Eventual multiprocessing code
-    pool = multiprocessing.Pool(maxtasksperchild=100)  # Returns Pool of size
-    # os.cpu_count()
+    # Create a Pool of size os.cpu_count() with a life of 100 tasks each
+    # before replacement
+    pool = Pool(maxtasksperchild=100)
 
     # Runs the function once per worker on the next available pair in the
     # dataset
-
     pool.map(create_csv_profile, generate_data_pairs())
