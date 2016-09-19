@@ -7,7 +7,7 @@ import sys
 from csv import reader, writer
 from distutils.dir_util import mkpath
 from getopt import GetoptError, getopt
-from multiprocessing import Pool
+from multiprocessing import Pool, cpu_count
 from os import path, makedirs, listdir
 from re import search, compile
 from shutil import rmtree
@@ -89,6 +89,17 @@ def create_csv_profile((mut_file, long_short_file)):
     # Build and open the allMuts file
     mut_file_handle = open(path.join(dataDir, allMutsName, mut_file), 'r')
 
+    # Build and open the long or short file based on extension
+    if '.long' in long_short_file:
+        long_short_file_handle = open(path.join(dataDir, refSeqName,
+                                         "iupredLong", long_short_file), 'r')
+    elif '.short' in long_short_file:
+        long_short_file_handle = open(path.join(dataDir, refSeqName,
+                                         "iupredShort", long_short_file), 'r')
+    else:
+        # Break if a non long/short file is found
+        sys.exit(2)
+
     # Generate profiles directory tree with each cancer type and gene id
     cancer_type = search("(\w+)\_.+\.txt", mut_file).group(1)
     gene_name = search("([\w|-]+)+\.\d+\.[long|short]+",
@@ -148,17 +159,6 @@ def create_csv_profile((mut_file, long_short_file)):
                                   long_short_file + ".prof"), 'w')
     profile_csv = writer(profile_file, delimiter='\t')
 
-    # Build and open the long or short file based on extension
-    if '.long' in long_short_file:
-        long_short_file = open(path.join(dataDir, refSeqName,
-                                         "iupredLong", long_short_file), 'r')
-    elif '.short' in long_short_file:
-        long_short_file = open(path.join(dataDir, refSeqName,
-                                         "iupredShort", long_short_file), 'r')
-    else:
-        # Break if a non long_short file is found
-        sys.exit(2)
-
     # Extract the mutations from the allMuts file
     isoform_name, long_short = path.splitext(long_short_file)
     print "Processing " + str(long_short_file)  # Inform user what is being done
@@ -180,7 +180,7 @@ def create_csv_profile((mut_file, long_short_file)):
                 mutations[row[5]] = 1
 
     # Gather the rest of the information from long_short file
-    for line in long_short_file:
+    for line in long_short_file_handle:
         # Skip comment lines at start
         if line.startswith('#'):
             continue
@@ -193,7 +193,7 @@ def create_csv_profile((mut_file, long_short_file)):
 
             # Output the individual isoform results to each of the
             # pertinent files. cancer_csv, gene_csv, and isoform_csv
-            # are appending, while profile_csv is writing.
+            # are appending/non-unique, while profile_csv is writing/unique.
             cancer_csv.writerow([long_short_match.group(1),
                                  long_short_match.group(2),
                                  long_short_match.group(3),
@@ -273,7 +273,7 @@ def generate_data_pairs():
                 # Create a new datapairs entry for each file found
                 if path.exists(long_path):
                     datapairs.append([mut_name, protein_isoform + ".long"])
-                elif path.exists(short_path):
+                if path.exists(short_path):
                     datapairs.append([mut_name, protein_isoform + ".short"])
 
     # Once all the allMuts files have been fully processed, return the datapairs
@@ -284,9 +284,11 @@ if __name__ == "__main__":
     # Run the CLI wrapper
     main()
 
-    # Create a Pool of size os.cpu_count() with a life of 100 tasks each
-    # before replacement
-    pool = Pool(maxtasksperchild=100)
+    # Create a Pool with a life of 100 tasks each before replacement
+    if cpu_count() < 16:
+        pool = Pool(maxtasksperchild=100)  # Set processes to size cpu_count(), local workaround
+    else:
+        pool = Pool(maxtasksperchild=100, processes=16)  # Set processes size to 16 directly, remote workaround
 
     # Runs the function once per worker on the next available pair in the
     # dataset
