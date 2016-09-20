@@ -87,18 +87,26 @@ def create_csv_profile((mut_file, long_short_file)):
     long_short_re = compile('\s+(\d+)\s+(\w+)\s+(.+)')
 
     # Build and open the allMuts file
-    mut_file_handle = open(path.join(dataDir, allMutsName, mut_file), 'r')
+    try:
+        mut_file_handle = open(path.join(dataDir, allMutsName, mut_file), 'r')
+    except IOError as e:
+        print(str(e))
+        return  # Return if the file does not exists, therefore the datapair is invalid
 
     # Build and open the long or short file based on extension
-    if '.long' in long_short_file:
-        long_short_file_handle = open(path.join(dataDir, refSeqName,
-                                         "iupredLong", long_short_file), 'r')
-    elif '.short' in long_short_file:
-        long_short_file_handle = open(path.join(dataDir, refSeqName,
-                                         "iupredShort", long_short_file), 'r')
-    else:
-        # Break if a non long/short file is found
-        sys.exit(2)
+    try:
+        if '.long' in long_short_file:
+            long_short_file_handle = open(path.join(dataDir, refSeqName,
+                                             "iupredLong", long_short_file), 'r')
+        elif '.short' in long_short_file:
+            long_short_file_handle = open(path.join(dataDir, refSeqName,
+                                             "iupredShort", long_short_file), 'r')
+        else:
+            # Break if a non long/short file is found
+            sys.exit(2)
+    except IOError as e:
+        print(str(e))
+        return  # Return if the file does not exists, therefore the datapair is invalid
 
     # Generate profiles directory tree with each cancer type and gene id
     cancer_type = search("(\w+)\_.+\.txt", mut_file).group(1)
@@ -293,3 +301,6 @@ if __name__ == "__main__":
     # Runs the function once per worker on the next available pair in the
     # dataset
     pool.map(create_csv_profile, generate_data_pairs())
+
+    # Close the Pool
+    pool.close()
