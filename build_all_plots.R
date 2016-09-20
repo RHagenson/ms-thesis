@@ -80,5 +80,5 @@ mcmapply(
   profileDir = data_pairs$profileDirVector,
   figsDir = data_pairs$figsDirVector,
   pValCut = data_pairs$pValCutVector,
-  mc.cores = detectCores()
+  mc.cores = 16
 )
