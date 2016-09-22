@@ -257,7 +257,7 @@ def generate_data_pairs():
     for mutFile in mut_filepaths:
         print "Now processing: " + mutFile
 
-        mut_name = mutFile.lstrip(mut_loc)
+        mut_name = path.basename(mutFile)
         with open(mutFile, 'r') as FILE:
             csv = reader(FILE, delimiter='\t')
             past_isoform = ""
