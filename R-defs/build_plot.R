@@ -37,8 +37,9 @@ build_plot <- function(filename, number, profileDir, figsDir, pValCut=0.05) {
   # Read in the source file
   path <- paste(profileDir, filename, sep = "/")
   
-  FILE <- read.delim(path, header = FALSE)
-  
+  # Try to read in the profile file, if it does not exist
+  FILE <- tryCatch(read.delim(path, header = FALSE), error=function(e) NULL)
+
   # Create a vector to hold the sum of random mutations
   normalVector = vector(mode = "double")
   
