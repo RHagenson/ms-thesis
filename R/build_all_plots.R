@@ -14,7 +14,7 @@ args <- commandArgs(trailingOnly = TRUE)
 
 # The variables changed by CLI
 profilesDir = args[1]
-number=10000
+number=250000
 figsDir="figs/"
 pValCut=0.05
 
