@@ -11,6 +11,7 @@ from multiprocessing import Pool, cpu_count
 from os import path, makedirs, listdir
 from re import search, compile
 from shutil import rmtree
+import datetime
 
 # Global variables
 dataDir = False  # Default False, should be overwritten at CLI
@@ -22,6 +23,7 @@ refSeqName = "refSeq"  # The name of the refSeq dir in dataDir
 profilesName = "profiles"  # The name of the final mutation profile csv's dir
 isoformsSubDirName = "isoforms"
 
+cancerTypes = []
 
 # General directory tree within dataDir is:
 # ./allMuts
@@ -45,7 +47,7 @@ def main():
 
     # Enables command-line options via getopt and sys packages
     try:
-        opts, args = getopt(sys.argv[1:], 'd:')
+        opts, args = getopt(sys.argv[1:], 'd:c:')
     except GetoptError as err:
         # Redirect STDERR to STDOUT (ensures screen display)
         sys.stdout = sys.stderr
@@ -62,8 +64,10 @@ def main():
             global dataDir
             dataDir = arg
 
+            now = datetime.datetime.now().strftime("%d-%m-%y")
+
             # Create or empty profiles directory
-            profile_dir = path.join(dataDir, profilesName)
+            profile_dir = path.join(dataDir, profilesName, now)
             if not path.exists(profile_dir):
                 makedirs(profile_dir)
                 del profile_dir
@@ -71,6 +75,10 @@ def main():
                 rmtree(profile_dir)
                 makedirs(profile_dir)
                 del profile_dir
+
+        if opt == "-c":
+            global cancerTypes
+            cancerTypes = arg.split(',')
 
 
 def create_csv_profile((mut_file, long_short_file)):
@@ -234,7 +242,7 @@ def generate_data_pairs():
     adds a new entry in datapairs in style ['<allMuts filename>',
     '<iupredLong prop.XXX>.long']
     """
-    global dataDir, allMutsName, refSeqName
+    global dataDir, allMutsName, refSeqName, cancerTypes
 
     # Define the absolute path to the allMuts directory
     mut_loc = path.join(dataDir, allMutsName)
@@ -249,7 +257,12 @@ def generate_data_pairs():
     # Collect the files in allMuts with absolute pathing
     mut_filepaths = []
     for f in listdir(mut_loc):
-        mut_filepaths.append(path.join(mut_loc, f))
+        if cancerTypes:
+            for cancer in cancerTypes:
+                if cancer+"_" in f:
+                    mut_filepaths.append(path.join(mut_loc, f))
+        else:
+            mut_filepaths.append(path.join(mut_loc, f))
 
     # Process each Mut file in turn
     # If the gene/isoform combination has an iupred entry, create a profile
