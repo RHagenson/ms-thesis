@@ -24,6 +24,7 @@ profilesName = "profiles"  # The name of the final mutation profile csv's dir
 isoformsSubDirName = "isoforms"
 
 cancerTypes = []
+now = datetime.datetime.now().strftime("%d-%m-%y")
 
 # General directory tree within dataDir is:
 # ./allMuts
@@ -44,10 +45,11 @@ def main():
     """
     A simple wrapper for all CLI options
     """
+    global dataDir, now, cancerTypes
 
     # Enables command-line options via getopt and sys packages
     try:
-        opts, args = getopt(sys.argv[1:], 'd:c:')
+        opts, args = getopt(sys.argv[1:], 'd:c:', ["date="])
     except GetoptError as err:
         # Redirect STDERR to STDOUT (ensures screen display)
         sys.stdout = sys.stderr
@@ -61,10 +63,7 @@ def main():
     # Configure the action of each CLI option
     for (opt, arg) in opts:
         if opt == "-d":  # Set high-level data directory location
-            global dataDir
             dataDir = arg
-
-            now = datetime.datetime.now().strftime("%d-%m-%y")
 
             # Create or empty profiles directory
             profile_dir = path.join(dataDir, profilesName, now)
@@ -77,8 +76,10 @@ def main():
                 del profile_dir
 
         if opt == "-c":
-            global cancerTypes
             cancerTypes = arg.split(',')
+
+        if opt == "--date":
+            now = arg
 
 
 def create_csv_profile((mut_file, long_short_file)):
@@ -124,11 +125,13 @@ def create_csv_profile((mut_file, long_short_file)):
     # Create by cancer-type and cancer-independent paths
     full_path = path.join(dataDir,
                           profilesName,
+                          now,
                           cancer_type,
                           gene_name)
 
     isoform_path = path.join(dataDir,
                              profilesName,
+                             now,
                              isoformsSubDirName)
 
     # If full_path does not exist, isoform_path should not
@@ -148,6 +151,7 @@ def create_csv_profile((mut_file, long_short_file)):
     # found within that cancer
     cancer_file = open(path.join(dataDir,
                                  profilesName,
+                                 now,
                                  cancer_type,
                                  cancer_type + ".prof"), "a")
     cancer_csv = writer(cancer_file, delimiter='\t')
@@ -155,6 +159,7 @@ def create_csv_profile((mut_file, long_short_file)):
     # gene_file is a profile for each gene that combines all its isoforms
     gene_file = open(path.join(dataDir,
                                profilesName,
+                               now,
                                cancer_type,
                                gene_name,
                                gene_name + ".prof"), "a")
@@ -163,6 +168,7 @@ def create_csv_profile((mut_file, long_short_file)):
     # isoform_file is a profile for each isoform, independent of cancer type
     isoform_file = open(path.join(dataDir,
                                   profilesName,
+                                  now,
                                   isoformsSubDirName,
                                   long_short_file + ".prof"), "a")
     isoform_csv = writer(isoform_file, delimiter='\t')
@@ -170,6 +176,7 @@ def create_csv_profile((mut_file, long_short_file)):
     # profile_file is a profile for each isoform, dependent on cancer type
     profile_file = open(path.join(dataDir,
                                   profilesName,
+                                  now,
                                   cancer_type,
                                   gene_name,
                                   long_short_file + ".prof"), 'w')
