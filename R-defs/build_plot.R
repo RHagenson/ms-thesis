@@ -68,8 +68,8 @@ build_plot <- function(filename, number, profileDir, figsDir, pValCut=0.05) {
     as.data.frame(table(normalVector) / length(normalVector) * 100)
 
   # Calculate the empirical p-value, using min to find whether it deviates high or lower than average 
-  pValue <- min((sum(realLevel < normalVector) / length(normalVector)), 
-                (sum(realLevel > normalVector) / length(normalVector)))
+  pValue <- min((sum(realLevel <= normalVector) / length(normalVector)), 
+                (sum(realLevel >= normalVector) / length(normalVector)))
   
   # Free resources now that the vector has served its purpose
   # rm(normalVector)
