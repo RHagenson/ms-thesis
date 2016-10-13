@@ -3,7 +3,7 @@
 # Where filename = ABCA12.001.long.prof, number = 100000 or more, 
 # profileDir = ~/Thesis/data/profiles/LUSC/ABCA12/, figsDir = "figs/"
 
-generate_data_pairs <- function(profilesDir, number=1000000, figsDir="figs/", pValCut=0.05) {
+generate_data_pairs <- function(profilesDir, number=1000000, figsDir="figs/", outputDir="outputs/", pValCut=0.05) {
   # Remove trailing '/' because dir() below adds it
   profilesDir <- sub(pattern = "/$", replacement = "", profilesDir)
   # Gather all the .prof files in the tree with absolute path names
@@ -17,6 +17,7 @@ generate_data_pairs <- function(profilesDir, number=1000000, figsDir="figs/", pV
   numberVector <- rep.int(number, length(filenameVector))
   profileDirVector <- dirname(profFilesVector)
   figsDirVector <- rep(figsDir, length(filenameVector))
+  outputDirVector <- rep(outputDir, length(filenameVector))
   pValCutVector <- rep.int(pValCut, length(filenameVector))
   
   # Create data.frame from vectors
@@ -29,6 +30,7 @@ generate_data_pairs <- function(profilesDir, number=1000000, figsDir="figs/", pV
                                    numberVector, 
                                    profileDirVector, 
                                    figsDirVector, 
+                                   outputDirVector,
                                    pValCutVector)
   
   return(return.frame)

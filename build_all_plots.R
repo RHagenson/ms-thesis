@@ -9,13 +9,18 @@ source("R-defs/generate_data_pairs.R")
 source("R-defs/build_plot.R")
 library("parallel")
 
+now <- format(Sys.Date(), format="%d-%m-%y")
+
 # Read in commandline arguments
 args <- commandArgs(trailingOnly = TRUE)
 
 # The variables changed by CLI
-profilesDir = args[1]
+now <- args[2]
+profilesDir <- paste(args[1], now, sep="/")
+
 number=250000
-figsDir="figs/"
+figsDir=paste("figs", sep="/")  # Does not need 'now' appended to it, because the tree is built off profileDir
+outputDir=paste("outputs", sep="/")  # Same as figsDir above
 pValCut=0.05
 
 # if (length(args) == 0) {
@@ -64,12 +69,13 @@ pValCut=0.05
 
 # Remove figs/ and outputs/
 unlink(figsDir, recursive = TRUE, force = TRUE)
-unlink("outputs/", recursive = TRUE, force = TRUE)
+unlink(outputDir, recursive = TRUE, force = TRUE)
 
 data_pairs <- generate_data_pairs(
   profilesDir = profilesDir,
   number = number,
   figsDir = figsDir,
+  outputDir = outputDir,
   pValCut = pValCut
 )
 
@@ -79,6 +85,7 @@ mcmapply(
   number = data_pairs$numberVector,
   profileDir = data_pairs$profileDirVector,
   figsDir = data_pairs$figsDirVector,
+  outputDir = data_pairs$outputDirVector,
   pValCut = data_pairs$pValCutVector,
   mc.cores = detectCores() - 1
 )

@@ -2,13 +2,13 @@
 # and generates a .pdf with the normal disorder plot marked by the observed disorder score
 # only plots with significant P values are output.
 
-build_plot <- function(filename, number, profileDir, figsDir, pValCut=0.05) {
+build_plot <- function(filename, number, profileDir, figsDir, outputDir, pValCut=0.05) {
   # Remove trailing '/' because paste() below adds it when creating path
   # profilesDir <- sub(pattern = "/$", replacement = "", profilesDir)
   
   # Generate log location and file
   logTree <- sub(pattern = "^.+/profiles/", replacement = "", profileDir)
-  CSVPath <- paste("outputs", 
+  CSVPath <- paste(outputDir, 
                    logTree, 
                    sub(pattern="*.prof", replacement = "", filename),
                    sep="/")
