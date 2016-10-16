@@ -117,10 +117,7 @@ def create_csv_profile((mut_file, long_short_file)):
     cancer_type = search("(\w+)\_.+\.txt", mut_file).group(1)
     geneMatch = search("([\w|-]+)+\.\d+\.([long|short]+)",
                        long_short_file)
-    gene_name = ".".join(map(str,geneMatch.group(1,2)))
-
-    print(gene_name)
-    exit(1)
+    gene_name = ".".join(map(str, geneMatch.group(1, 2)))
 
     # Create by cancer-type and cancer-independent paths
     full_path = path.join(dataDir,
