@@ -20,9 +20,6 @@ build_plot <- function(filename, number, profileDir, figsDir, outputDir, pValCut
   # Generate PDF plot location and file
   figsTree <- sub(pattern = "^.+/profiles/", replacement = "", profileDir)
   pdfPath <- paste(figsDir, figsTree, sep = "/")
-  if(! dir.exists(pdfPath)){
-    dir.create(pdfPath, recursive = TRUE)  # Create path if it does not exist
-  }
   
   # The parameters that will eventual change
   filename <-
@@ -44,7 +41,6 @@ build_plot <- function(filename, number, profileDir, figsDir, outputDir, pValCut
   normalVector = vector(mode = "double")
   
   # Determine how many mutations are present
-  mutationNum <- sum(FILE$V4)
   realLevel = as.numeric(sum(FILE$V3 * FILE$V4))
   numMutations = as.numeric(sum(FILE$V4))
   
@@ -56,7 +52,7 @@ build_plot <- function(filename, number, profileDir, figsDir, outputDir, pValCut
     
     normalVector <-
       append(normalVector, 
-             round(sum(sample(FILE$V3, replace = TRUE, size = mutationNum)), 
+             round(sum(sample(FILE$V3, replace = TRUE, size = numMutations)), 
                    digits = 3))
   }
   
@@ -88,14 +84,19 @@ build_plot <- function(filename, number, profileDir, figsDir, outputDir, pValCut
   #   4. average random disorder score
   #   5. total number of mutations
   #   6. empirical p-value
-  write.table(x=data.frame(filename, realLevel, avgDisorder, numMutations, pValue), 
+  write.table(x=data.frame(sub(".prof", "", filename), realLevel, avgDisorder, numMutations, pValue), 
               file=paste(CSVPath, CSV, sep="/"), append = TRUE, row.names = FALSE,
               quote = FALSE, sep=",", col.names = FALSE)
   
   if (pValue <= pValCut) {
   # if (TRUE) {
+    if(! dir.exists(pdfPath)){
+      dir.create(pdfPath, recursive = TRUE)  # Create path if it does not exist
+    }
+    
     # Open the output pdf for writing, with naming based on where the profile is from
-    pdf(paste(pdfPath, sub(".prof", ".pdf", filename), sep = "/"))
+    pdfName = sub(".prof", ".pdf", sub(".short", "", sub(".long", "", filename)))
+    pdf(paste(pdfPath, pdfName, sep = "/"))
     
     
     # Plot
