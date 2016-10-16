@@ -23,7 +23,7 @@ refSeqName = "refSeq"  # The name of the refSeq dir in dataDir
 profilesName = "profiles"  # The name of the final mutation profile csv's dir
 isoformsSubDirName = "isoforms"
 
-cancerTypes = []
+cancerTypes = ['BRCA']
 now = datetime.datetime.now().strftime("%d-%m-%y")
 
 # General directory tree within dataDir is:
@@ -49,7 +49,7 @@ def main():
 
     # Enables command-line options via getopt and sys packages
     try:
-        opts, args = getopt(sys.argv[1:], 'd:c:', ["date="])
+        opts, args = getopt(sys.argv[1:], 'd:c:', ["date=", "dataDir=", "cancerTypes="])
     except GetoptError as err:
         # Redirect STDERR to STDOUT (ensures screen display)
         sys.stdout = sys.stderr
@@ -62,20 +62,16 @@ def main():
 
     # Configure the action of each CLI option
     for (opt, arg) in opts:
-        if opt == "-d":  # Set high-level data directory location
+        if opt in ("-d", "--dataDir"):  # Set high-level data directory location
             dataDir = arg
 
-            # Create or empty profiles directory
+            # Create profiles directory with now date
             profile_dir = path.join(dataDir, profilesName, now)
             if not path.exists(profile_dir):
                 makedirs(profile_dir)
                 del profile_dir
-            else:
-                rmtree(profile_dir)
-                makedirs(profile_dir)
-                del profile_dir
 
-        if opt == "-c":
+        if opt in ("-c",  "--cancerTypes"):
             cancerTypes = arg.split(',')
 
         if opt == "--date":
@@ -119,8 +115,12 @@ def create_csv_profile((mut_file, long_short_file)):
 
     # Generate profiles directory tree with each cancer type and gene id
     cancer_type = search("(\w+)\_.+\.txt", mut_file).group(1)
-    gene_name = search("([\w|-]+)+\.\d+\.[long|short]+",
-                       long_short_file).group(1)
+    geneMatch = search("([\w|-]+)+\.\d+\.([long|short]+)",
+                       long_short_file)
+    gene_name = ".".join(map(str,geneMatch.group(1,2)))
+
+    print(gene_name)
+    exit(1)
 
     # Create by cancer-type and cancer-independent paths
     full_path = path.join(dataDir,
