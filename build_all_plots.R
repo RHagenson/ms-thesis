@@ -68,8 +68,8 @@ pValCut=0.05
 #        )
 
 # Remove figs/ and outputs/
-unlink(figsDir, recursive = TRUE, force = TRUE)
-unlink(outputDir, recursive = TRUE, force = TRUE)
+# unlink(paste(figsDir, now, sep="/"), recursive = TRUE, force = TRUE)
+# unlink(paste(outputDir, now, sep="/"), recursive = TRUE, force = TRUE)
 
 data_pairs <- generate_data_pairs(
   profilesDir = profilesDir,
