@@ -14,6 +14,8 @@ from shutil import rmtree
 import datetime
 
 # Global variables
+import operator
+
 dataDir = False  # Default False, should be overwritten at CLI
 allMAFsName = "allMAFs"  # The name of the allMAFs dir in dataDir
 allMutsName = "allMuts"  # The name of the allMuts dir in dataDir
@@ -93,7 +95,10 @@ def create_csv_profile((mut_file, long_short_file)):
 
     # Build and open the allMuts file
     try:
-        mut_file_handle = open(path.join(dataDir, allMutsName, mut_file), 'r')
+        mut_file_handle = open(path.join(dataDir,
+                                         allMutsName,
+                                         mut_file),
+                               'r')
     except IOError as e:
         print(str(e))
         return  # Return if the file does not exists, therefore the datapair is invalid
@@ -117,6 +122,7 @@ def create_csv_profile((mut_file, long_short_file)):
     cancer_type = search("(\w+)\_.+\.txt", mut_file).group(1)
     geneMatch = search("([\w|-]+)+\.\d+\.([long|short]+)",
                        long_short_file)
+    # GENE.long or GENE.short, separates long and short at the gene level
     gene_name = ".".join(map(str, geneMatch.group(1, 2)))
 
     # Create by cancer-type and cancer-independent paths
@@ -182,11 +188,15 @@ def create_csv_profile((mut_file, long_short_file)):
     # Extract the mutations from the allMuts file
     isoform_name, long_short = path.splitext(long_short_file)
     print "Processing " + str(long_short_file)  # Inform user what is being done
-    mut_csv = reader(mut_file_handle, delimiter='\t')
+    # Sort the file based on isoform name so mutations are sequential
+    mut_csv = sorted(reader(mut_file_handle,
+                            delimiter='\t'),
+                     key=operator.itemgetter(0))
     mutations = {}  # Should be {pos# : count}
     for row in mut_csv:
         # If we have found our mutations and there are no more for this
         # isoform break the loop, depends on isoform lines being sequential
+        # which is handled by sorting the file
         if len(mutations) > 0:
             if row[0] != isoform_name:
                 break
@@ -261,10 +271,12 @@ def generate_data_pairs():
     # Collect the files in allMuts with absolute pathing
     mut_filepaths = []
     for f in listdir(mut_loc):
+        # If cancerTypes have been given, only process those cancers
         if cancerTypes:
             for cancer in cancerTypes:
                 if cancer+"_" in f:
                     mut_filepaths.append(path.join(mut_loc, f))
+        # Otherwise process all cancer type found
         else:
             mut_filepaths.append(path.join(mut_loc, f))
 
@@ -311,7 +323,8 @@ if __name__ == "__main__":
 
     # Create a Pool with a life of 100 tasks each before replacement
     if cpu_count() < 16:
-        pool = Pool(maxtasksperchild=100)  # Set processes to size cpu_count(), local workaround
+        pool = Pool(maxtasksperchild=100)  # Set processes to size
+        # cpu_count(), local workaround
     else:
         pool = Pool(maxtasksperchild=100, processes=16)  # Set processes size to 16 directly, remote workaround
 
