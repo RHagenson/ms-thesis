@@ -3,20 +3,16 @@
 # Name: Ryan Hagenson
 # Email: rhagenson@unomaha.edu
 
+from operator import itemgetter
 import sys
 from csv import reader, writer
+from datetime import datetime
 from distutils.dir_util import mkpath
 from getopt import GetoptError, getopt
 from multiprocessing import Pool, cpu_count
 from os import path, makedirs, listdir, walk
-from re import search, compile
-from shutil import rmtree
-import datetime
-
-# Global variables
-import operator
-
 from os.path import basename
+from re import search, compile
 
 dataDir = False  # Default False, should be overwritten at CLI
 allMAFsName = "allMAFs"  # The name of the allMAFs dir in dataDir
@@ -28,7 +24,7 @@ profilesName = "profiles"  # The name of the final mutation profile csv's dir
 isoformsSubDirName = "isoforms"
 
 cancerTypes = ['BRCA']
-now = datetime.datetime.now().strftime("%d-%m-%y")
+now = datetime.now().strftime("%d-%m-%y")  # Default run time
 
 # General directory tree within dataDir is:
 # ./allMuts
@@ -53,7 +49,10 @@ def main():
 
     # Enables command-line options via getopt and sys packages
     try:
-        opts, args = getopt(sys.argv[1:], 'd:c:', ["date=", "dataDir=", "cancerTypes="])
+        opts, args = getopt(sys.argv[1:],
+                            'd:c:',
+                            ["date=", "dataDir=", "cancerTypes="]
+                            )
     except GetoptError as err:
         # Redirect STDERR to STDOUT (ensures screen display)
         sys.stdout = sys.stderr
@@ -99,26 +98,35 @@ def create_csv_profile((mut_file, long_short_file)):
     try:
         mut_file_handle = open(path.join(dataDir,
                                          allMutsName,
-                                         mut_file),
-                               'r')
+                                         mut_file), 'r')
     except IOError as e:
-        print(str(e))
-        return  # Return if the file does not exists, therefore the datapair is invalid
+        print(str(e))  # send the error out for bug tracking
+
+        # Return if the file does not exists,
+        # therefore the datapair is invalid
+        return
 
     # Build and open the long or short file based on extension
     try:
         if '.long' in long_short_file:
-            long_short_file_handle = open(path.join(dataDir, refSeqName,
-                                             "iupredLong", long_short_file), 'r')
+            long_short_file_handle = open(path.join(dataDir,
+                                                    refSeqName,
+                                                    "iupredLong",
+                                                    long_short_file), 'r')
         elif '.short' in long_short_file:
-            long_short_file_handle = open(path.join(dataDir, refSeqName,
-                                             "iupredShort", long_short_file), 'r')
+            long_short_file_handle = open(path.join(dataDir,
+                                                    refSeqName,
+                                                    "iupredShort",
+                                                    long_short_file), 'r')
         else:
             # Break if a non long/short file is found
             sys.exit(2)
     except IOError as e:
-        print(str(e))
-        return  # Return if the file does not exists, therefore the datapair is invalid
+        print(str(e))  # send the error out for bug tracking
+
+        # Return if the file does not exists,
+        # therefore the datapair is invalid
+        return
 
     # Generate profiles directory tree with each cancer type and gene id
     cancer_type = search("(\w+)\_.+\.txt", mut_file).group(1)
@@ -167,7 +175,7 @@ def create_csv_profile((mut_file, long_short_file)):
     # Sort the file based on isoform name so mutations are sequential
     mut_csv = sorted(reader(mut_file_handle,
                             delimiter='\t'),
-                     key=operator.itemgetter(0))
+                     key=itemgetter(0))
     mutations = {}  # Should be {pos# : count}
     for row in mut_csv:
         # If we have found our mutations and there are no more for this
@@ -283,17 +291,17 @@ def generate_data_pairs():
     return datapairs
 
 
-def concatenate_isoforms(cancerType):
+def concatenate_isoforms(cancer_type):
     """
-    :param cancerType: The cancer type that should be walked through for
+    :param cancer_type: The cancer type that should be walked through for
     concatenation
-    :type cancerType: str
+    :type cancer_type: str
     :return: None, outputs concatenated files within the same directory the
     individual isoform files are found and a single full file for all within
     a cancer type
     """
-    profile_dir = path.join(dataDir, profilesName, now, cancerType)
-    cancerProfile = open(path.join(profile_dir, cancerType + ".prof"), 'w')
+    profile_dir = path.join(dataDir, profilesName, now, cancer_type)
+    cancerProfile = open(path.join(profile_dir, cancer_type + ".prof"), 'w')
 
     for (dirpath, dirnames, filenames) in walk(profile_dir):
         # Open the concatenation file for writing
@@ -320,10 +328,11 @@ if __name__ == "__main__":
 
     # Create a Pool with a life of 100 tasks each before replacement
     if cpu_count() < 16:
-        pool = Pool(maxtasksperchild=100)  # Set processes to size cpu_count(
-        # ), local workaround
+        # Set processes to size cpu_count(), local workaround
+        pool = Pool(maxtasksperchild=100)
     else:
-        pool = Pool(maxtasksperchild=100, processes=16)  # Set processes size to 16 directly, remote workaround
+        # Set processes size to 16 directly, remote workaround
+        pool = Pool(maxtasksperchild=100, processes=16)
 
     # Runs the function once per worker on the next available pair in the
     # dataset
