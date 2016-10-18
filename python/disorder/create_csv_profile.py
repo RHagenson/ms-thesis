@@ -8,13 +8,15 @@ from csv import reader, writer
 from distutils.dir_util import mkpath
 from getopt import GetoptError, getopt
 from multiprocessing import Pool, cpu_count
-from os import path, makedirs, listdir
+from os import path, makedirs, listdir, walk
 from re import search, compile
 from shutil import rmtree
 import datetime
 
 # Global variables
 import operator
+
+from os.path import basename
 
 dataDir = False  # Default False, should be overwritten at CLI
 allMAFsName = "allMAFs"  # The name of the allMAFs dir in dataDir
@@ -142,32 +144,6 @@ def create_csv_profile((mut_file, long_short_file)):
         mkpath(full_path)
         mkpath(isoform_path)
 
-    # Open each of the cancer type, gene id, isoform,
-    # and individual profile files
-    # Done as two steps each:
-    # 1) opening a file handle, and
-    # 2) passing the handle to csv.writer() to allow directed closing of the
-    # file for guaranteed resource release for other workers.
-    #
-    #
-    # cancer_file is a profile for the combination of all genes and isoforms
-    # found within that cancer
-    cancer_file = open(path.join(dataDir,
-                                 profilesName,
-                                 now,
-                                 cancer_type,
-                                 cancer_type + ".prof"), "a")
-    cancer_csv = writer(cancer_file, delimiter='\t')
-
-    # gene_file is a profile for each gene that combines all its isoforms
-    gene_file = open(path.join(dataDir,
-                               profilesName,
-                               now,
-                               cancer_type,
-                               gene_name,
-                               gene_name + ".prof"), "a")
-    gene_csv = writer(gene_file, delimiter='\t')
-
     # isoform_file is a profile for each isoform, independent of cancer type
     isoform_file = open(path.join(dataDir,
                                   profilesName,
@@ -222,16 +198,8 @@ def create_csv_profile((mut_file, long_short_file)):
                 pos_muts = mutations[long_short_match.group(1)]
 
             # Output the individual isoform results to each of the
-            # pertinent files. cancer_csv, gene_csv, and isoform_csv
-            # are appending/non-unique, while profile_csv is writing/unique.
-            cancer_csv.writerow([long_short_match.group(1),
-                                 long_short_match.group(2),
-                                 long_short_match.group(3),
-                                 pos_muts])
-            gene_csv.writerow([long_short_match.group(1),
-                               long_short_match.group(2),
-                               long_short_match.group(3),
-                               pos_muts])
+            # pertinent files: isoform_csv and profile_csv
+            # Combining these files into gene and cancer-level is done later
             isoform_csv.writerow([long_short_match.group(1),
                                   long_short_match.group(2),
                                   long_short_match.group(3),
@@ -242,8 +210,6 @@ def create_csv_profile((mut_file, long_short_file)):
                                   pos_muts])
 
     # Be sure to release the files for other workers to take over control of
-    cancer_file.close()
-    gene_file.close()
     isoform_file.close()
     profile_file.close()
 
@@ -317,14 +283,45 @@ def generate_data_pairs():
     return datapairs
 
 
+def concatenate_isoforms(cancerType):
+    """
+    :param cancerType: The cancer type that should be walked through for
+    concatenation
+    :type cancerType: str
+    :return: None, outputs concatenated files within the same directory the
+    individual isoform files are found and a single full file for all within
+    a cancer type
+    """
+    profile_dir = path.join(dataDir, profilesName, now, cancerType)
+    cancerProfile = open(path.join(profile_dir, cancerType + ".prof"), 'w')
+
+    for (dirpath, dirnames, filenames) in walk(profile_dir):
+        # Open the concatenation file for writing
+        with open(str(path.join(dirpath,
+                                basename(dirpath) + ".prof")),
+                  'w') as outfile:
+
+            for fname in filenames:
+                # Check to make sure the file has an isoform number before
+                # reading it
+                if search("\w+\.\d+\.\w+", fname):
+                    with open(path.join(dirpath, fname), 'r') as infile:
+                        for line in infile:
+                            outfile.write(line)
+                            cancerProfile.write(line)
+
+    # Be sure to close the whole cancer profile
+    cancerProfile.close()
+
+
 if __name__ == "__main__":
     # Run the CLI wrapper
     main()
 
     # Create a Pool with a life of 100 tasks each before replacement
     if cpu_count() < 16:
-        pool = Pool(maxtasksperchild=100)  # Set processes to size
-        # cpu_count(), local workaround
+        pool = Pool(maxtasksperchild=100)  # Set processes to size cpu_count(
+        # ), local workaround
     else:
         pool = Pool(maxtasksperchild=100, processes=16)  # Set processes size to 16 directly, remote workaround
 
@@ -334,3 +331,8 @@ if __name__ == "__main__":
 
     # Close the Pool
     pool.close()
+
+    # Walk through the directory for each type in cancerTypes, concatenating
+    # isoform files
+    for ctype in cancerTypes:
+        concatenate_isoforms(ctype)
