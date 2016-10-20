@@ -8,20 +8,62 @@
 source("R-defs/generate_data_pairs.R")
 source("R-defs/build_plot.R")
 library("parallel")
+library("optparse")
 
-now <- format(Sys.Date(), format="%d-%m-%y")
+# Define the CLI arguments
+option_list = list(
+  make_option(c("-f", "--figs"), 
+              type="character", 
+              default=paste("figs", sep="/"), 
+              help="Location of the figs/ directory, where PDFs are output [default= %default]", 
+              metavar="character"),
+  make_option(c("-d", "--date"), 
+              type="character", 
+              default=format(Sys.Date(), format="%d-%m-%y"), 
+              help="Date in profiles to process [form = DD-MM-YY]", 
+              metavar="character"),
+  make_option(c("-n", "--number"), 
+              type="double", 
+              default=250000, 
+              help="Number of samples to take for each profile [default= %default]", 
+              metavar="number"),
+  make_option(c("-p", "--profiles"), 
+              type="character", 
+              default=NULL, 
+              help="Location of profiles/ directory", metavar="character"),
+  make_option(c("-o", "--outputs"), 
+              type="character", 
+              default=paste("outputs", sep="/"), 
+              help="Location of the outputs/ directory, where LOGs are output [default= %default]", 
+              metavar="character"),
+  make_option(c("-c", "--pValueCutoff"), 
+              type="double", 
+              default=0.05, 
+              help="The empicial p-Value cutoff [default= %default]", 
+              metavar="number")
+);
 
-# Read in commandline arguments
-args <- commandArgs(trailingOnly = TRUE)
+# Parse the arguments
+opt_parser = OptionParser(option_list=option_list);
+opt = parse_args(opt_parser);
 
-# The variables changed by CLI
-now <- args[2]
-profilesDir <- paste(args[1], now, sep="/")
+# Make profiles and data required CLI arguments
+if (is.null(opt$profiles)){
+  print_help(opt_parser)
+  stop("-p/--profiles is a required argument.n", call.=FALSE)
+}
+if (is.null(opt$date)){
+  print_help(opt_parser)
+  stop("-d/--date is a required argument.n", call.=FALSE)
+}
 
-number=250000
-figsDir=paste("figs", sep="/")  # Does not need 'now' appended to it, because the tree is built off profileDir
-outputDir=paste("outputs", sep="/")  # Same as figsDir above
-pValCut=0.05
+# The variables changed by CLI arguments
+now <- opt$date
+profilesDir <- opt$profiles
+number <- opt$number
+figsDir <- opt$figs # Does not need 'now' appended to it, because the tree is built off profileDir
+outputDir <- opt$outputs # Same as figsDir above
+pValCut <- opt$pValueCutoff
 
 # Remove figs/ and outputs/
 # unlink(paste(figsDir, now, sep="/"), recursive = TRUE, force = TRUE)

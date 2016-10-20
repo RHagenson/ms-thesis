@@ -56,7 +56,7 @@ build_plot <- function(filename, number, profileDir, figsDir, outputDir, pValCut
   }
   
   # Determine average disorder score from normal curve
-  avgDisorder = round(sum(normalVector) / length(normalVector), digits=4)
+  avgDisorder = round(sum(normalVector) / length(normalVector), digits=3)
   
   # Generate a data frame with values and freq as percent
   frame <-
@@ -65,12 +65,12 @@ build_plot <- function(filename, number, profileDir, figsDir, outputDir, pValCut
   # Calculate the empirical pValue and directionality
   lessPValue <-  sum(realLevel <= normalVector) / length(normalVector)
   morePValue <- sum(realLevel >= normalVector) / length(normalVector)
-  if (lessPValue < morePValue) {
+  if (morePValue < lessPValue) {
+    pValue <- morePValue
+    pValDirection <- "+"  # The observed is above the expected average
+  } else {
     pValue <- lessPValue
     pValDirection <- "-"  # The observed is below the expected average
-  } else {
-    pValye <- morePValue
-    pValDirection <- "+"  # The observed is above the expected average
   }
   
   # Add column names

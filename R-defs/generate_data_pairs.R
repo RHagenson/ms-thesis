@@ -2,6 +2,9 @@
 # into build_plot <- function(...) {...} found in R-defs/
 
 generate_data_pairs <- function(profilesDir, number=1000000, figsDir="figs/", outputDir="outputs/", pValCut=0.05) {
+  # Inform user what is being done
+  print(paste("Generating data pairs within:", as.character(profilesDir)))
+  
   # Remove trailing '/' because dir() below adds it
   profilesDir <- sub(pattern = "/$", replacement = "", profilesDir)
   
