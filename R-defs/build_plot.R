@@ -63,9 +63,16 @@ build_plot <- function(filename, number, profileDir, figsDir, outputDir, pValCut
   frame <-
     as.data.frame(table(normalVector) / length(normalVector) * 100)
 
-  # Calculate the empirical p-value, using min to find whether it deviates high or lower than average 
-  pValue <- min((sum(realLevel <= normalVector) / length(normalVector)), 
-                (sum(realLevel >= normalVector) / length(normalVector)))
+  # Calculate the empirical pValue and directionality
+  lessPValue <-  sum(realLevel <= normalVector) / length(normalVector)
+  morePValue <- sum(realLevel >= normalVector) / length(normalVector)
+  if (lessPValue < morePValue) {
+    pValue <- lessPValue
+    pValDirection <- "-"  # The observed is below the expected average
+  } else {
+    pValye <- morePValue
+    pValDirection <- "+"  # The observed is above the expected average
+  }
   
   # Free resources now that the vector has served its purpose
   # rm(normalVector)
@@ -84,7 +91,11 @@ build_plot <- function(filename, number, profileDir, figsDir, outputDir, pValCut
   #   4. average random disorder score
   #   5. total number of mutations
   #   6. empirical p-value
-  write.table(x=data.frame(sub(".prof", "", filename), realLevel, avgDisorder, numMutations, pValue), 
+  write.table(x=data.frame(sub(".prof", "", filename), 
+                           realLevel, 
+                           avgDisorder, 
+                           numMutations, 
+                           paste(pValDirection, pValue, sep="")), 
               file=paste(CSVPath, CSV, sep="/"), append = TRUE, row.names = FALSE,
               quote = FALSE, sep=",", col.names = FALSE)
   
@@ -108,7 +119,7 @@ build_plot <- function(filename, number, profileDir, figsDir, outputDir, pValCut
     Corner_text <- function(text, location="topright"){
       legend(location,legend=text, bty ="n", pch=NA) 
     }
-    Corner_text(text = paste("p-value: ", pValue, "\n",
+    Corner_text(text = paste("p-value: ", paste(pValDirection, pValue, sep=""), "\n",
                              "Average score: ", avgDisorder, "\n",
                              "Observed score: ", realLevel, "\n",
                              "Number of mutations: ", numMutations, sep=""))
