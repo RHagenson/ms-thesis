@@ -23,50 +23,6 @@ figsDir=paste("figs", sep="/")  # Does not need 'now' appended to it, because th
 outputDir=paste("outputs", sep="/")  # Same as figsDir above
 pValCut=0.05
 
-# if (length(args) == 0) {
-#   print("Please provide the commandline arguments")
-#   print("Order of arguments: profilesDir, number, figsDir, pValCut")
-#   print("At least profilesDir is needed")
-#   print("Example: ~/Thesis/disorderCancer/data/profiles 100000 figs/ 0.05")
-#   q()
-# }
-
-# len <- as.character(length(args))
-# Set defaults of args, at least profilesDir is needed
-# switch(len,
-#        "0"={
-#          print("Please provide the commandline arguments")
-#          print("Order of arguments: profilesDir, number, figsDir, pValCut")
-#          print("At least profilesDir is needed")
-#          print("Example: ~/Thesis/disorderCancer/data/profiles 100000 figs/ 0.05")
-#          q()
-#        },
-#        "1"={
-#          profilesDir = args[1]
-#          number=1000000
-#          figsDir="figs/"
-#          pValCut=0.05
-#          },
-#        "2"={
-#          profilesDir = args[1]
-#          number = args[2]
-#          figsDir="figs/"
-#          pValCut=0.05
-#          },
-#        "3"={
-#          profilesDir = args[1]
-#          number = args[2]
-#          figsDir = args[3]
-#          pValCut=0.05
-#          },
-#        "4"={
-#          profilesDir = args[1]
-#          number = args[2]
-#          figsDir = args[3]
-#          pValCut=args[4]
-#          }
-#        )
-
 # Remove figs/ and outputs/
 # unlink(paste(figsDir, now, sep="/"), recursive = TRUE, force = TRUE)
 # unlink(paste(outputDir, now, sep="/"), recursive = TRUE, force = TRUE)

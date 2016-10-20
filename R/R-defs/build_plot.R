@@ -17,13 +17,12 @@ build_plot <- function(filename, number, profileDir, figsDir, outputDir, pValCut
   }
   CSV <- "LOG.csv"
   
-  # Generate PDF plot location and file
+  # Generate PDF plot location
   figsTree <- sub(pattern = "^.+/profiles/", replacement = "", profileDir)
   pdfPath <- paste(figsDir, figsTree, sep = "/")
   
   # The parameters that will eventual change
-  filename <-
-    filename # "MUC16.001.long.prof"  # The profile being processed
+  filename <- filename # The profile being processed, e.g. "MUC16.001.long.prof"
   
   N = as.numeric(number) # 100000  # The number of samples to take
   
@@ -31,7 +30,7 @@ build_plot <- function(filename, number, profileDir, figsDir, outputDir, pValCut
                           # Ex ~/Thesis/data/profiles/isoforms/
   figsDir = figsDir  # The location of where figures should be written, do not ending forget '/'
   
-  # Read in the source file
+  # Read in the source profile file
   path <- paste(profileDir, filename, sep = "/")
   
   # Try to read in the profile file, if it does not exist
@@ -40,12 +39,12 @@ build_plot <- function(filename, number, profileDir, figsDir, outputDir, pValCut
   # Create a vector to hold the sum of random mutations
   normalVector = vector(mode = "double")
   
-  # Determine how many mutations are present
+  # Determine how many mutations are present and the observed disorder score of mutations
   realLevel = as.numeric(sum(FILE$V3 * FILE$V4))
   numMutations = as.numeric(sum(FILE$V4))
   
   for (i in 1:N) {
-    # Print a helpful message to the user for what is being done
+    # Print a helpful message to the user for what is being done periodically
     if ((i %% 1000) == 0) {
       print(paste("On sample number", as.character(i), "for", filename))
     }
@@ -53,7 +52,7 @@ build_plot <- function(filename, number, profileDir, figsDir, outputDir, pValCut
     normalVector <-
       append(normalVector, 
              round(sum(sample(FILE$V3, replace = TRUE, size = numMutations)), 
-                   digits = 3))
+                   digits = 4))
   }
   
   # Determine average disorder score from normal curve
@@ -73,9 +72,6 @@ build_plot <- function(filename, number, profileDir, figsDir, outputDir, pValCut
     pValye <- morePValue
     pValDirection <- "+"  # The observed is above the expected average
   }
-  
-  # Free resources now that the vector has served its purpose
-  # rm(normalVector)
   
   # Add column names
   colnames(frame) <- c("TotalDisOrderScore", "PercentFreq")
@@ -99,8 +95,8 @@ build_plot <- function(filename, number, profileDir, figsDir, outputDir, pValCut
               file=paste(CSVPath, CSV, sep="/"), append = TRUE, row.names = FALSE,
               quote = FALSE, sep=",", col.names = FALSE)
   
+  # Produce a PDF plot if the pValue is below the threshold
   if (pValue <= pValCut) {
-  # if (TRUE) {
     if(! dir.exists(pdfPath)){
       dir.create(pdfPath, recursive = TRUE)  # Create path if it does not exist
     }
@@ -111,8 +107,12 @@ build_plot <- function(filename, number, profileDir, figsDir, outputDir, pValCut
     
     
     # Plot
-    plot(density(normalVector), xlab = "Total Disorder Score", ylab = "Probability Density", type = "p", main =
-           sub(".prof", "", filename), pch = 20
+    plot(density(normalVector), 
+         xlab = "Total Disorder Score", 
+         ylab = "Probability Density", 
+         type = "p", 
+         main = sub(".prof", "", filename), 
+         pch = 20
     )
     
     # Function brought to you by: http://eranraviv.com/adding-text-to-r-plot/
@@ -124,8 +124,6 @@ build_plot <- function(filename, number, profileDir, figsDir, outputDir, pValCut
                              "Observed score: ", realLevel, "\n",
                              "Number of mutations: ", numMutations, sep=""))
     
-    # Add the real value to the plot
-    # points(x=c(realLevel), y=c(0.09), pch=25, col=20)
     # Add a light-blue vertical line at real value
     abline(v = realLevel, col = 21)
     
