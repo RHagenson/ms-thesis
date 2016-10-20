@@ -14,6 +14,8 @@ from os import path, makedirs, listdir, walk
 from os.path import basename
 from re import search, compile
 
+from shutil import rmtree
+
 dataDir = False  # Default False, should be overwritten at CLI
 allMAFsName = "allMAFs"  # The name of the allMAFs dir in dataDir
 allMutsName = "allMuts"  # The name of the allMuts dir in dataDir
@@ -119,7 +121,7 @@ def create_csv_profile((mut_file, long_short_file)):
                                                     "iupredShort",
                                                     long_short_file), 'r')
         else:
-            # Break if a non long/short file is found
+            # Break if no long/short file is found
             sys.exit(2)
     except IOError as e:
         print(str(e))  # send the error out for bug tracking
@@ -222,15 +224,18 @@ def create_csv_profile((mut_file, long_short_file)):
     profile_file.close()
 
 
-def generate_data_pairs():
+def generate_data_pairs(ctype):
     """
+    :arg ctype: Which cancer is currently being processed
+    :type ctype: str
+
     Builds an iterable list of data pairs for Pool.map()
     Reads each file in data/allMuts/, for each line it determines if that
     protein has a corresponding file in iupredLong|iupredShort, if it does it
     adds a new entry in datapairs in style ['<allMuts filename>',
     '<iupredLong prop.XXX>.long']
     """
-    global dataDir, allMutsName, refSeqName, cancerTypes
+    global dataDir, allMutsName, refSeqName
 
     # Define the absolute path to the allMuts directory
     mut_loc = path.join(dataDir, allMutsName)
@@ -245,13 +250,8 @@ def generate_data_pairs():
     # Collect the files in allMuts with absolute pathing
     mut_filepaths = []
     for f in listdir(mut_loc):
-        # If cancerTypes have been given, only process those cancers
-        if cancerTypes:
-            for cancer in cancerTypes:
-                if cancer+"_" in f:
-                    mut_filepaths.append(path.join(mut_loc, f))
-        # Otherwise process all cancer type found
-        else:
+        # Only process the file that matches ctype
+        if ctype+"_" in f:
             mut_filepaths.append(path.join(mut_loc, f))
 
     # Process each Mut file in turn
@@ -291,6 +291,10 @@ def generate_data_pairs():
     return datapairs
 
 
+# Need to add functionality that concatenates isoforms from across cancer
+# types once all types have been processed, can be done recursively by
+# matching ctype isoforms to ones in profiles/now/isoforms/ or as true post
+# processing once all types are done (do not concate non-isoform files)
 def concatenate_isoforms(cancer_type):
     """
     :param cancer_type: The cancer type that should be walked through for
@@ -323,25 +327,35 @@ def concatenate_isoforms(cancer_type):
 
 
 if __name__ == "__main__":
-    # Run the CLI wrapper
+    # Run the CLI wrapper to change global variables
     main()
 
-    # Create a Pool with a life of 100 tasks each before replacement
-    if cpu_count() < 16:
-        # Set processes to size cpu_count(), local workaround
-        pool = Pool(maxtasksperchild=100)
-    else:
-        # Set processes size to 16 directly, remote workaround
-        pool = Pool(maxtasksperchild=100, processes=16)
-
-    # Runs the function once per worker on the next available pair in the
-    # dataset
-    pool.map(create_csv_profile, generate_data_pairs())
-
-    # Close the Pool
-    pool.close()
-
-    # Walk through the directory for each type in cancerTypes, concatenating
-    # isoform files
     for ctype in cancerTypes:
+        # Create the CANCER root or clear the CANCER root
+        cancer_dir = path.join(dataDir, profilesName, now, ctype)
+        if not path.exists(cancer_dir):
+            makedirs(cancer_dir)
+            del cancer_dir
+        else:
+            rmtree(cancer_dir)
+            makedirs(cancer_dir)
+            del cancer_dir
+
+        # Create a Pool with a life of 100 tasks each before replacement
+        if cpu_count() < 16:
+            # Set processes to size cpu_count(), local workaround
+            pool = Pool(maxtasksperchild=100)
+        else:
+            # Set processes size to 16 directly, remote workaround
+            pool = Pool(maxtasksperchild=100, processes=16)
+
+        # Runs the function once per worker on the next available pair in the
+        # dataset
+        pool.map(create_csv_profile, generate_data_pairs(ctype))
+
+        # Close the Pool
+        pool.close()
+
+        # Walk through the directory for each type in cancerTypes, concatenating
+        # isoform files
         concatenate_isoforms(ctype)
