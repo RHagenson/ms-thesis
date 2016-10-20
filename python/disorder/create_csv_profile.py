@@ -16,7 +16,7 @@ from re import search, compile
 
 from shutil import rmtree
 
-dataDir = False  # Default False, should be overwritten at CLI
+dataDir = ""  # Default False, should be overwritten at CLI
 allMAFsName = "allMAFs"  # The name of the allMAFs dir in dataDir
 allMutsName = "allMuts"  # The name of the allMuts dir in dataDir
 cdsName = "cds"  # The name of the cds dir in dataDir
@@ -154,14 +154,6 @@ def create_csv_profile((mut_file, long_short_file)):
         mkpath(full_path)
         mkpath(isoform_path)
 
-    # isoform_file is a profile for each isoform, independent of cancer type
-    isoform_file = open(path.join(dataDir,
-                                  profilesName,
-                                  now,
-                                  isoformsSubDirName,
-                                  long_short_file + ".prof"), "a")
-    isoform_csv = writer(isoform_file, delimiter='\t')
-
     # profile_file is a profile for each isoform, dependent on cancer type
     profile_file = open(path.join(dataDir,
                                   profilesName,
@@ -173,11 +165,15 @@ def create_csv_profile((mut_file, long_short_file)):
 
     # Extract the mutations from the allMuts file
     isoform_name, long_short = path.splitext(long_short_file)
+
     print "Processing " + str(long_short_file)  # Inform user what is being done
+
     # Sort the file based on isoform name so mutations are sequential
     mut_csv = sorted(reader(mut_file_handle,
                             delimiter='\t'),
                      key=itemgetter(0))
+
+    # Set the mutation counts for each position, requires sorted isoform lines in mut_csv
     mutations = {}  # Should be {pos# : count}
     for row in mut_csv:
         # If we have found our mutations and there are no more for this
@@ -207,20 +203,14 @@ def create_csv_profile((mut_file, long_short_file)):
             if long_short_match.group(1) in mutations:
                 pos_muts = mutations[long_short_match.group(1)]
 
-            # Output the individual isoform results to each of the
-            # pertinent files: isoform_csv and profile_csv
-            # Combining these files into gene and cancer-level is done later
-            isoform_csv.writerow([long_short_match.group(1),
-                                  long_short_match.group(2),
-                                  long_short_match.group(3),
-                                  pos_muts])
+            # Output the individual isoform results to the pertinent file: profile_csv
+            # Combining these files into gene, isoform, and cancer-level is done later
             profile_csv.writerow([long_short_match.group(1),
                                   long_short_match.group(2),
                                   long_short_match.group(3),
                                   pos_muts])
 
-    # Be sure to release the files for other workers to take over control of
-    isoform_file.close()
+    # Be sure to release the file to free resources
     profile_file.close()
 
 
@@ -304,10 +294,10 @@ def concatenate_isoforms(cancer_type):
     individual isoform files are found and a single full file for all within
     a cancer type
     """
-    profile_dir = path.join(dataDir, profilesName, now, cancer_type)
-    cancerProfile = open(path.join(profile_dir, cancer_type + ".prof"), 'w')
+    cancer_dir = path.join(dataDir, profilesName, now, cancer_type)
+    cancerProfile = open(path.join(cancer_dir, cancer_type + ".prof"), 'w')
 
-    for (dirpath, dirnames, filenames) in walk(profile_dir):
+    for (dirpath, dirnames, filenames) in walk(cancer_dir):
         # Open the concatenation file for writing
         with open(str(path.join(dirpath,
                                 basename(dirpath) + ".prof")),
@@ -318,9 +308,19 @@ def concatenate_isoforms(cancer_type):
                 # reading it
                 if search("\w+\.\d+\.\w+", fname):
                     with open(path.join(dirpath, fname), 'r') as infile:
+                        isoformProfile = open(path.join(dataDir,
+                                                        profilesName,
+                                                        now,
+                                                        isoformsSubDirName,
+                                                        fname),
+                                              'a')
                         for line in infile:
                             outfile.write(line)
                             cancerProfile.write(line)
+                            isoformProfile.write(line)
+
+                        # Close the isoform profile after appending all lines to it
+                        isoformProfile.close()
 
     # Be sure to close the whole cancer profile
     cancerProfile.close()
