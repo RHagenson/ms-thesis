@@ -1,7 +1,8 @@
 # This function takes the path to where cancer profiles tree is and returns values for lapply
 # into build_plot <- function(...) {...} found in R-defs/
 
-generate_data_pairs <- function(profilesDir, number=1000000, figsDir="figs/", outputDir="outputs/", pValCut=0.05) {
+generate_data_pairs <- function(profilesDir, number=1000000, figsDir="figs/", 
+                                outputDir="outputs/", pValCut=0.05, plot = FALSE) {
   # Inform user what is being done
   print(paste("Generating data pairs within:", as.character(profilesDir)))
   
@@ -21,6 +22,7 @@ generate_data_pairs <- function(profilesDir, number=1000000, figsDir="figs/", ou
   figsDirVector <- rep(figsDir, length(filenameVector))
   outputDirVector <- rep(outputDir, length(filenameVector))
   pValCutVector <- rep.int(pValCut, length(filenameVector))
+  plotVector <- rep.int(plot, length(filenameVector))
   
   # Create data.frame from vectors
   return.frame <- cbind.data.frame(filenameVector, 
@@ -28,7 +30,8 @@ generate_data_pairs <- function(profilesDir, number=1000000, figsDir="figs/", ou
                                    profileDirVector, 
                                    figsDirVector, 
                                    outputDirVector,
-                                   pValCutVector)
+                                   pValCutVector,
+                                   plotVector)
   
   return(return.frame)
 }
