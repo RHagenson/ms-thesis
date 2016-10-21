@@ -3,6 +3,11 @@
 
 generate_data_pairs <- function(profilesDir, number=1000000, figsDir="figs/", 
                                 outputDir="outputs/", pValCut=0.05, plot = FALSE) {
+  # Remove and double slashes recursively
+  while(grepl("//", profilesDir)) {
+    profilesDir <- sub("//", "/", profilesDir)
+  }
+  
   # Inform user what is being done
   print(paste("Generating data pairs within:", as.character(profilesDir)))
   
