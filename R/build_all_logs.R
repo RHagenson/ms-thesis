@@ -6,7 +6,7 @@
 # the result is significant
 
 source("R-defs/generate_data_pairs.R")
-source("R-defs/build_plot.R")
+source("R-defs/generate_log.R")
 library("parallel")
 library("optparse")
 
@@ -70,20 +70,22 @@ pValCut <- opt$pValueCutoff
 # unlink(paste(outputDir, now, sep="/"), recursive = TRUE, force = TRUE)
 
 data_pairs <- generate_data_pairs(
-  profilesDir = profilesDir,
+  profilesDir = paste(profilesDir, now, sep="/"),
   number = number,
   figsDir = figsDir,
   outputDir = outputDir,
-  pValCut = pValCut
+  pValCut = pValCut,
+  plot = FALSE
 )
 
 mcmapply(
-  build_plot,
+  generate_log,
   filename = data_pairs$filenameVector,
   number = data_pairs$numberVector,
   profileDir = data_pairs$profileDirVector,
   figsDir = data_pairs$figsDirVector,
   outputDir = data_pairs$outputDirVector,
   pValCut = data_pairs$pValCutVector,
+  plot = data_pairs$plotVector,
   mc.cores = detectCores() - 1
 )
