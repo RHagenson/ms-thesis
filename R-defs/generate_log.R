@@ -44,17 +44,11 @@ generate_log <- function(filename, number, profileDir, figsDir, outputDir, pValC
   realLevel = as.numeric(sum(FILE$V3 * FILE$V4))
   numMutations = as.numeric(sum(FILE$V4))
   
-  for (i in 1:N) {
-    # Print a helpful message to the user for what is being done periodically
-    if ((i %% 1000) == 0) {
-      print(paste("On sample number", as.character(i), "for", filename))
-    }
-    
-    normalVector <-
-      append(normalVector, 
-             round(sum(sample(FILE$V3, replace = TRUE, size = numMutations)), 
-                   digits = 4))
-  }
+  # Speed up the sampling by using replicate rather than for loop -- suggested by Dr. Ghersi
+  normalVector <- replicate(N, sum(sample(FILE$V3, size = numMutations, replace = TRUE)))
+  
+  # Inform user that file sampled successfully
+  print(paste("Processed", as.character(N), "samples from", filename))
   
   # Determine average disorder score from normal curve
   avgDisorder = round(sum(normalVector) / length(normalVector), digits=3)
