@@ -24,7 +24,7 @@ option_list = list(
               metavar="character"),
   make_option(c("-n", "--number"), 
               type="double", 
-              default=250000, 
+              default=1000000, 
               help="Number of samples to take for each profile [default= %default]", 
               metavar="number"),
   make_option(c("-p", "--profiles"), 
@@ -40,14 +40,19 @@ option_list = list(
               type="double", 
               default=0.05, 
               help="The empicial p-Value cutoff [default= %default]", 
-              metavar="number")
+              metavar="number"),
+  make_option(c("-t", "--cancerType"), 
+              type="character", 
+              default=NULL, 
+              help="The cancer type, e.g. BRCA, to process [default= %default]", 
+              metavar="character")
 );
 
 # Parse the arguments
 opt_parser = OptionParser(option_list=option_list);
 opt = parse_args(opt_parser);
 
-# Make profiles and data required CLI arguments
+# Make profiles, data, and cancerType required CLI arguments
 if (is.null(opt$profiles)){
   print_help(opt_parser)
   stop("-p/--profiles is a required argument.n", call.=FALSE)
@@ -55,6 +60,10 @@ if (is.null(opt$profiles)){
 if (is.null(opt$date)){
   print_help(opt_parser)
   stop("-d/--date is a required argument.n", call.=FALSE)
+}
+if (is.null(opt$cancerType)){
+  print_help(opt_parser)
+  stop("-t/--cancerType is a required argument.n", call.=FALSE)
 }
 
 # The variables changed by CLI arguments
@@ -64,13 +73,14 @@ number <- opt$number
 figsDir <- opt$figs # Does not need 'now' appended to it, because the tree is built off profileDir
 outputDir <- opt$outputs # Same as figsDir above
 pValCut <- opt$pValueCutoff
+cancerType <- opt$cancerType
 
 # Remove figs/ and outputs/
 # unlink(paste(figsDir, now, sep="/"), recursive = TRUE, force = TRUE)
 # unlink(paste(outputDir, now, sep="/"), recursive = TRUE, force = TRUE)
 
 data_pairs <- generate_data_pairs(
-  profilesDir = paste(profilesDir, now, sep="/"),
+  profilesDir = paste(profilesDir, now, cancerType, sep="/"),
   number = number,
   figsDir = figsDir,
   outputDir = outputDir,
