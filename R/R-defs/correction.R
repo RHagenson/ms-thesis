@@ -10,7 +10,7 @@ source("R-defs/isoform_length.R")
 correction <- function(date, cancerType) {
   # Select global variables
   preferredDirection = "+" # Should correspond to which pValues represent higher disorder than average in LOG.csv files
-  correctionMethod = "holm" # Options are below:
+  correctionMethod = "fdr" # Options are below:
   # p.adjust.methods
   # c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY",
   #   "fdr", "none")
@@ -153,7 +153,7 @@ correction <- function(date, cancerType) {
   
   # Output to the user
   print("Computing the adjusted long p-values")
-  selectIsoformsLong$pVal <- p.adjust(apply(selectIsoformsLong,
+  selectIsoformsLong$pValAdj <- p.adjust(apply(selectIsoformsLong,
                                             1,
                                             function(row)
                                               if (row['pValDir'] != preferredDirection) {
@@ -164,7 +164,7 @@ correction <- function(date, cancerType) {
                                       method = correctionMethod)
   
   print("Computing the adjusted short p-values")
-  selectIsoformsShort$pVal <- p.adjust(apply(selectIsoformsShort,
+  selectIsoformsShort$pValAdj <- p.adjust(apply(selectIsoformsShort,
                                              1,
                                              function(row)
                                                if (row['pValDir'] != preferredDirection) {
@@ -174,6 +174,14 @@ correction <- function(date, cancerType) {
                                                }),
                                        method = correctionMethod)
   
+  
+  ### This function should return the two data.frames in a list/vector/etc
+  ### Once that is done, the print/output below should be extracted to the
+  ### top-level script directory alongside a log of each data.frame by type
+  ### (long v short) and by method used to generate the corrections, hence
+  ### the function should return the method used as well or have the method be
+  ### a required parameter.
+  
   # Create a file for the signficant results
   outDir <- paste("./outputs", date, "p-adjusted", cancerType, sep = "/")
   dir.create(outDir, recursive = TRUE, showWarnings = FALSE)
@@ -182,20 +190,20 @@ correction <- function(date, cancerType) {
   sink(paste(outDir, "adjResults.txt", sep = "/"), split = TRUE)
   
   # Output the significant results for long files
-  print(paste("The number of significant long values is:", as.character(sum(selectIsoformsLong$pVal < 1))))
+  print(paste("The number of significant long values is:", as.character(sum(selectIsoformsLong$pValAdj < 1))))
   print("Value(s):")
-  print(as.character(selectIsoformsLong$pVal[which(selectIsoformsLong$pVal < 1)]))
+  print(as.character(selectIsoformsLong$pVal[which(selectIsoformsLong$pValAdj < 1)]))
   print("Related isoform:")
-  print(as.character(selectIsoformsLong$isoName[which(selectIsoformsLong$pVal < 1)]))
+  print(as.character(selectIsoformsLong$isoName[which(selectIsoformsLong$pValAdj < 1)]))
   print("Direction of significance:")
-  print(as.character(selectIsoformsLong$pValDir[which(selectIsoformsLong$pVal < 1)]))
+  print(as.character(selectIsoformsLong$pValDir[which(selectIsoformsLong$pValAdj < 1)]))
   
   # Output the significant results for short files
-  print(paste("The number of significant short values is:", as.character(sum(selectIsoformsShort$pVal < 1))))
+  print(paste("The number of significant short values is:", as.character(sum(selectIsoformsShort$pValAdj < 1))))
   print("Value(s):")
-  print(as.character(selectIsoformsShort$pVal[which(selectIsoformsShort$pVal < 1)]))
+  print(as.character(selectIsoformsShort$pVal[which(selectIsoformsShort$pValAdj < 1)]))
   print("Related isoform:")
-  print(as.character(selectIsoformsShort$isoName[which(selectIsoformsShort$pVal < 1)]))
+  print(as.character(selectIsoformsShort$isoName[which(selectIsoformsShort$pValAdj < 1)]))
   print("Direction of significance:")
-  print(as.character(selectIsoformsShort$pValDir[which(selectIsoformsShort$pVal < 1)]))
+  print(as.character(selectIsoformsShort$pValDir[which(selectIsoformsShort$pValAdj < 1)]))
 }
