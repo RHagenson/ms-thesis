@@ -9,6 +9,7 @@ source("R-defs/isoform_length.R")
 
 correction <- function(date, cancerType) {
   # Select global variables
+  pValCutoff = 0.1
   preferredDirection = "+" # Should correspond to which pValues represent higher disorder than average in LOG.csv files
   correctionMethod = "fdr" # Options are below:
   # p.adjust.methods
@@ -190,20 +191,20 @@ correction <- function(date, cancerType) {
   sink(paste(outDir, "adjResults.txt", sep = "/"), split = TRUE)
   
   # Output the significant results for long files
-  print(paste("The number of significant long values is:", as.character(sum(selectIsoformsLong$pValAdj < 1))))
+  print(paste("The number of significant long values is:", as.character(sum(selectIsoformsLong$pValAdj < pValCutoff))))
   print("Value(s):")
-  print(as.character(selectIsoformsLong$pVal[which(selectIsoformsLong$pValAdj < 1)]))
+  print(as.character(selectIsoformsLong$pVal[which(selectIsoformsLong$pValAdj < pValCutoff)]))
   print("Related isoform:")
-  print(as.character(selectIsoformsLong$isoName[which(selectIsoformsLong$pValAdj < 1)]))
+  print(as.character(selectIsoformsLong$isoName[which(selectIsoformsLong$pValAdj < pValCutoff)]))
   print("Direction of significance:")
-  print(as.character(selectIsoformsLong$pValDir[which(selectIsoformsLong$pValAdj < 1)]))
+  print(as.character(selectIsoformsLong$pValDir[which(selectIsoformsLong$pValAdj < pValCutoff)]))
   
   # Output the significant results for short files
-  print(paste("The number of significant short values is:", as.character(sum(selectIsoformsShort$pValAdj < 1))))
+  print(paste("The number of significant short values is:", as.character(sum(selectIsoformsShort$pValAdj < pValCutoff))))
   print("Value(s):")
-  print(as.character(selectIsoformsShort$pVal[which(selectIsoformsShort$pValAdj < 1)]))
+  print(as.character(selectIsoformsShort$pVal[which(selectIsoformsShort$pValAdj < pValCutoff)]))
   print("Related isoform:")
-  print(as.character(selectIsoformsShort$isoName[which(selectIsoformsShort$pValAdj < 1)]))
+  print(as.character(selectIsoformsShort$isoName[which(selectIsoformsShort$pValAdj < pValCutoff)]))
   print("Direction of significance:")
-  print(as.character(selectIsoformsShort$pValDir[which(selectIsoformsShort$pValAdj < 1)]))
+  print(as.character(selectIsoformsShort$pValDir[which(selectIsoformsShort$pValAdj < pValCutoff)]))
 }
