@@ -183,28 +183,36 @@ correction <- function(date, cancerType) {
   ### the function should return the method used as well or have the method be
   ### a required parameter.
   
-  # Create a file for the signficant results
-  outDir <- paste("./outputs", date, "p-adjusted", cancerType, sep = "/")
-  dir.create(outDir, recursive = TRUE, showWarnings = FALSE)
+  return(list("long" = selectIsoformsLong, 
+              "short" = selectIsoformsShort))
   
-  # Redirect output to file and STOUT
-  sink(paste(outDir, "adjResults.txt", sep = "/"), split = TRUE)
-  
-  # Output the significant results for long files
-  print(paste("The number of significant long values is:", as.character(sum(selectIsoformsLong$pValAdj < pValCutoff))))
-  print("Value(s):")
-  print(as.character(selectIsoformsLong$pVal[which(selectIsoformsLong$pValAdj < pValCutoff)]))
-  print("Related isoform:")
-  print(as.character(selectIsoformsLong$isoName[which(selectIsoformsLong$pValAdj < pValCutoff)]))
-  print("Direction of significance:")
-  print(as.character(selectIsoformsLong$pValDir[which(selectIsoformsLong$pValAdj < pValCutoff)]))
-  
-  # Output the significant results for short files
-  print(paste("The number of significant short values is:", as.character(sum(selectIsoformsShort$pValAdj < pValCutoff))))
-  print("Value(s):")
-  print(as.character(selectIsoformsShort$pVal[which(selectIsoformsShort$pValAdj < pValCutoff)]))
-  print("Related isoform:")
-  print(as.character(selectIsoformsShort$isoName[which(selectIsoformsShort$pValAdj < pValCutoff)]))
-  print("Direction of significance:")
-  print(as.character(selectIsoformsShort$pValDir[which(selectIsoformsShort$pValAdj < pValCutoff)]))
+  # Create a directory for the signficant results
+#   outDir <- paste("./outputs", date, "p-adjusted", cancerType, sep = "/")
+#   dir.create(outDir, recursive = TRUE, showWarnings = FALSE)
+#   
+#   # Output the significant results
+#   # Write the two data.frames to file
+# #   write.csv(selectIsoformsLong, file = paste(outDir, "long_log.csv", sep = "/"))
+# #   write.csv(selectIsoformsShort, file = paste(outDir, "short_log.csv", sep = "/"))
+#   
+#   # Redirect output to file and STOUT
+#   sink(paste(outDir, "adjResults.txt", sep = "/"), split = TRUE)
+#   
+#   # Output the significant results for long files
+#   print(paste("The number of significant long values is:", as.character(sum(selectIsoformsLong$pValAdj < pValCutoff))))
+#   print("Value(s):")
+#   print(as.character(selectIsoformsLong$pVal[which(selectIsoformsLong$pValAdj < pValCutoff)]))
+#   print("Related isoform:")
+#   print(as.character(selectIsoformsLong$isoName[which(selectIsoformsLong$pValAdj < pValCutoff)]))
+#   print("Direction of significance:")
+#   print(as.character(selectIsoformsLong$pValDir[which(selectIsoformsLong$pValAdj < pValCutoff)]))
+#   
+#   # Output the significant results for short files
+#   print(paste("The number of significant short values is:", as.character(sum(selectIsoformsShort$pValAdj < pValCutoff))))
+#   print("Value(s):")
+#   print(as.character(selectIsoformsShort$pVal[which(selectIsoformsShort$pValAdj < pValCutoff)]))
+#   print("Related isoform:")
+#   print(as.character(selectIsoformsShort$isoName[which(selectIsoformsShort$pValAdj < pValCutoff)]))
+#   print("Direction of significance:")
+#   print(as.character(selectIsoformsShort$pValDir[which(selectIsoformsShort$pValAdj < pValCutoff)]))
 }
