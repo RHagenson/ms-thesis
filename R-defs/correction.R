@@ -7,18 +7,25 @@
 
 source("R-defs/isoform_length.R")
 
-correction <- function(date, cancerType) {
+correction <- function(date, cancerType, 
+                       method=c("holm", "hochberg", "hommel", 
+                                "bonferroni", "BH", "BY", 
+                                "fdr", "none"),
+                       preferredDirection="+") {
   # Select global variables
   pValCutoff = 0.1
-  preferredDirection = "+" # Should correspond to which pValues represent higher disorder than average in LOG.csv files
-  correctionMethod = "fdr" # Options are below:
-  # p.adjust.methods
-  # c("holm", "hochberg", "hommel", "bonferroni", "BH", "BY",
-  #   "fdr", "none")
+  # Should correspond to which pValues represent higher disorder than average in LOG.csv files
+  preferredDirection = preferredDirection
+  
+  if (length(method) > 1) {
+    correctionMethod = "fdr"
+  } else {
+    correctionMethod = method
+  }
   
   # Add cancerType onto logsDir to build the cancer-specific directory
   logsDir <- paste("./outputs", date, cancerType, sep = "/")
-  
+
   # Remove any double slashes
   logsDir <- gsub(pattern = "//", replacement = "/", x = logsDir)
   
@@ -60,13 +67,13 @@ correction <- function(date, cancerType) {
     for (file in list.files(
       directory, pattern = "LOG.csv", full.names = TRUE, recursive = TRUE
     )) {
-      if (grepl("long", file)) {
+      if (grepl("\\.[0-9]{3}\\.long", file)) {
         longFiles <- c(longFiles, file)
-      } else if (grepl("short", file)) {
+      } else if (grepl("\\.[0-9]{3}\\.short", file)) {
         shortFiles <- c(shortFiles, file)
       }
     } # End files for loop
-    
+
     # Create a dataframe for easy mutliple column sorting, can be combined into one by isoform name only
     # absent of .long or .short file name
     longDataFrame <- as.data.frame(longFiles)
@@ -176,43 +183,6 @@ correction <- function(date, cancerType) {
                                        method = correctionMethod)
   
   
-  ### This function should return the two data.frames in a list/vector/etc
-  ### Once that is done, the print/output below should be extracted to the
-  ### top-level script directory alongside a log of each data.frame by type
-  ### (long v short) and by method used to generate the corrections, hence
-  ### the function should return the method used as well or have the method be
-  ### a required parameter.
-  
   return(list("long" = selectIsoformsLong, 
               "short" = selectIsoformsShort))
-  
-  # Create a directory for the signficant results
-#   outDir <- paste("./outputs", date, "p-adjusted", cancerType, sep = "/")
-#   dir.create(outDir, recursive = TRUE, showWarnings = FALSE)
-#   
-#   # Output the significant results
-#   # Write the two data.frames to file
-# #   write.csv(selectIsoformsLong, file = paste(outDir, "long_log.csv", sep = "/"))
-# #   write.csv(selectIsoformsShort, file = paste(outDir, "short_log.csv", sep = "/"))
-#   
-#   # Redirect output to file and STOUT
-#   sink(paste(outDir, "adjResults.txt", sep = "/"), split = TRUE)
-#   
-#   # Output the significant results for long files
-#   print(paste("The number of significant long values is:", as.character(sum(selectIsoformsLong$pValAdj < pValCutoff))))
-#   print("Value(s):")
-#   print(as.character(selectIsoformsLong$pVal[which(selectIsoformsLong$pValAdj < pValCutoff)]))
-#   print("Related isoform:")
-#   print(as.character(selectIsoformsLong$isoName[which(selectIsoformsLong$pValAdj < pValCutoff)]))
-#   print("Direction of significance:")
-#   print(as.character(selectIsoformsLong$pValDir[which(selectIsoformsLong$pValAdj < pValCutoff)]))
-#   
-#   # Output the significant results for short files
-#   print(paste("The number of significant short values is:", as.character(sum(selectIsoformsShort$pValAdj < pValCutoff))))
-#   print("Value(s):")
-#   print(as.character(selectIsoformsShort$pVal[which(selectIsoformsShort$pValAdj < pValCutoff)]))
-#   print("Related isoform:")
-#   print(as.character(selectIsoformsShort$isoName[which(selectIsoformsShort$pValAdj < pValCutoff)]))
-#   print("Direction of significance:")
-#   print(as.character(selectIsoformsShort$pValDir[which(selectIsoformsShort$pValAdj < pValCutoff)]))
-}
+  }
