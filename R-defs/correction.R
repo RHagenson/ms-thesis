@@ -103,14 +103,16 @@ correction <- function(date, cancerType,
                                    pVal=numeric(length(longFiles)),
                                    isoName=character(length(longFiles)),
                                    isoLength=numeric(length(longFiles)),
-                                   pValDir=character(length(longFiles))
+                                   pValDir=character(length(longFiles)),
+                                   pValAdj=numeric(length(longFiles))
                                    )
     shortDataFrame <- as.data.frame(shortFiles,
                                     numMuts=numeric(length(shortFiles)),
                                     pVal=numeric(length(shortFiles)),
                                     isoName=character(length(shortFiles)),
                                     isoLength=numeric(length(shortFiles)),
-                                    pValDir=character(length(shortFiles))
+                                    pValDir=character(length(shortFiles)),
+                                    pValAdj=numeric(length(longFiles))
                                     )
     
     # Find the top longFile and add its p-value to the best vector
@@ -118,7 +120,8 @@ correction <- function(date, cancerType,
       # Read files into memory
       HANDLE <- apply(longDataFrame, 
                       1, 
-                      function(row) read.table(as.character(row["longFiles"]), 
+                      function(row) 
+                        read.table(as.character(row["longFiles"]), 
                                                sep = ",")
                       )
       
@@ -151,6 +154,7 @@ correction <- function(date, cancerType,
       longDataFrame <- as.data.frame(lapply(longDataFrame, unlist))
       selectIsoformsLong[L_SELECT_ROW, ] <- longDataFrame[with(longDataFrame,
                                                      order(-numMuts, isoLength, isoName)), ][1, ]
+      L_SELECT_ROW <- L_SELECT_ROW + 1
       
     } # End finding the top longFile and adding it p-value to the best vector
     
@@ -159,7 +163,9 @@ correction <- function(date, cancerType,
       # Read files into memory
       HANDLE <- apply(shortDataFrame, 
                       1, 
-                      function(row) read.table(as.character(row["shortFiles"]), sep = ","))
+                      function(row) 
+                        read.table(as.character(row["shortFiles"]), 
+                                   sep = ","))
       
       # Set number of mutations column via entire shortFiles vector
       shortDataFrame$numMuts <- lapply(HANDLE, function(row) row$V4)
@@ -190,6 +196,7 @@ correction <- function(date, cancerType,
       shortDataFrame <- as.data.frame(lapply(shortDataFrame, unlist))
       selectIsoformsShort[S_SELECT_ROW, ] <- shortDataFrame[with(shortDataFrame,
                                                        order(-numMuts, isoLength, isoName)),][1,]
+      S_SELECT_ROW <- S_SELECT_ROW + 1
     } # End finding the top shortFile and adding it p-value to the best vector
   } # End directory for loop
   
@@ -203,24 +210,14 @@ correction <- function(date, cancerType,
   selectIsoformsLong$pValAdj <- p.adjust(apply(selectIsoformsLong,
                                             1,
                                             function(row)
-                                              print(row['pValDir'])
-                                              # if (row['pValDir'] != preferredDirection) {
-                                              #   1 - as.numeric(row['pVal'])
-                                              # }else{
-                                              #   as.numeric(row['pVal'])
-                                              # }
-                                              ),
+                                              as.numeric(as.character(row['pVal']))),
                                       method = correctionMethod)
   
   print("Computing the adjusted short p-values")
   selectIsoformsShort$pValAdj <- p.adjust(apply(selectIsoformsShort,
                                              1,
                                              function(row)
-                                               if (row['pValDir'] != preferredDirection) {
-                                                 1 - as.numeric(row['pVal'])
-                                               }else{
-                                                 as.numeric(row['pVal'])
-                                               }),
+                                               as.numeric(as.character(row['pVal']))),
                                        method = correctionMethod)
   
   
