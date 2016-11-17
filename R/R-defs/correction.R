@@ -163,23 +163,15 @@ correction <- function(date, cancerType,
   print("Computing the adjusted long p-values")
   selectIsoformsLong$pValAdj <- p.adjust(apply(selectIsoformsLong,
                                             1,
-                                            function(row)
-                                              if (row['pValDir'] != preferredDirection) {
-                                                1 - as.numeric(row['pVal'])
-                                              }else{
-                                                as.numeric(row['pVal'])
-                                              }),
+                                            function(row) 
+                                              as.numeric(as.character(row['pVal']))),
                                       method = correctionMethod)
   
   print("Computing the adjusted short p-values")
   selectIsoformsShort$pValAdj <- p.adjust(apply(selectIsoformsShort,
                                              1,
-                                             function(row)
-                                               if (row['pValDir'] != preferredDirection) {
-                                                 1 - as.numeric(row['pVal'])
-                                               }else{
-                                                 as.numeric(row['pVal'])
-                                               }),
+                                             function(row) 
+                                               as.numeric(as.character(row['pVal']))),
                                        method = correctionMethod)
   
   
