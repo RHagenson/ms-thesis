@@ -126,10 +126,10 @@ correction <- function(date, cancerType,
                       )
       
       # Set number of mutations column via entire longFiles vector
-      longDataFrame$numMuts <- lapply(HANDLE, function(row) as.numeric(row$V4))
+      longDataFrame$numMuts <- lapply(HANDLE, function(row) as.numeric(as.character(row$V4)))
       
       # Set the pValue of each entry in the longFiles vector
-      longDataFrame$pVal <- lapply(HANDLE, function(row) as.numeric(row$V5))
+      longDataFrame$pVal <- lapply(HANDLE, function(row) as.numeric(as.character(row$V5)))
       
       # Set the isoName by separating it from the full file path
       longDataFrame$isoName <- lapply(longFiles, 
@@ -138,7 +138,7 @@ correction <- function(date, cancerType,
       # Set length of each isofom by running isoform_length()
       longDataFrame$isoLength <- apply(longDataFrame, 
                                        1, 
-                                       function(row) as.numeric(isoform_length(row["isoName"])))
+                                       function(row) as.numeric(as.character(isoform_length(row["isoName"]))))
       
       # Set direction of p-value
       longDataFrame$pValDir <- lapply(HANDLE, function(row) as.character(row$V6))
