@@ -88,7 +88,9 @@ def concat_cancer_logs(log_dir=logs_dir):
 
         # Skip those cancers that have previously been processed
         if os.path.isfile(concateLong) & os.path.isfile(concateShort):
-            continue
+            if ((os.stat(concateLong).st_size > 0) &
+                    (os.stat(concateShort).st_size > 0)):
+                continue
 
         # Open concatenated files for writing
         # TMP files are unsorted while the final LONG and SHORT are sorted
