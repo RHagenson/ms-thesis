@@ -3,11 +3,6 @@ PackratVersion: 0.4.8.1
 RVersion: 3.3.2
 Repos: CRAN=https://cran.rstudio.com/
 
-Package: R6
-Source: CRAN
-Version: 2.2.0
-Hash: 712773a3439bd32db5c40938e1a9aac2
-
 Package: Rcpp
 Source: CRAN
 Version: 0.12.7
@@ -39,6 +34,11 @@ Source: CRAN
 Version: 0.6.10
 Hash: 87165608ca8aeb0958835c3c5b52b6b7
 
+Package: entropy
+Source: CRAN
+Version: 1.2.1
+Hash: ccff926ff232f7c19b4c84bab3d3d6d3
+
 Package: evaluate
 Source: CRAN
 Version: 0.10
@@ -63,7 +63,7 @@ Hash: aa3d5b7912b5fed4b546ed5cd2a1760b
 Package: htmltools
 Source: CRAN
 Version: 0.3.5
-Hash: a96dc1cfe628e66337c86be732567df2
+Hash: 33ffa12740ca921fd387ccd043d76059
 Requires: Rcpp, digest
 
 Package: jsonlite
@@ -93,21 +93,10 @@ Version: 0.7.7
 Hash: fea2343a1119d61b0cc5c0a950d103a3
 Requires: mime
 
-Package: memoise
-Source: CRAN
-Version: 1.0.0
-Hash: 56e7087c3559eb7ba72a9afb349bf896
-Requires: digest
-
 Package: mime
 Source: CRAN
 Version: 0.5
 Hash: 463550cf44fb6f0a2359368f42eebe62
-
-Package: openssl
-Source: CRAN
-Version: 0.9.5
-Hash: 26776a287eaffb2331c9a449c1d2a791
 
 Package: optparse
 Source: CRAN
@@ -127,10 +116,11 @@ Hash: d0e9f583d85019c99a171b094979fcb3
 Requires: base64enc, caTools, evaluate, htmltools, jsonlite, knitr,
     tibble, yaml
 
-Package: rstudioapi
+Package: rticles
 Source: CRAN
-Version: 0.6
-Hash: fd256f8bfb9a64cc35f98b0decb1a79f
+Version: 0.2
+Hash: be79d55b14ce05269378510369240fb4
+Requires: knitr, rmarkdown, yaml
 
 Package: stringi
 Source: CRAN
@@ -146,13 +136,8 @@ Requires: magrittr, stringi
 Package: tibble
 Source: CRAN
 Version: 1.2
-Hash: 3b35b556ef7acddb0d28fe6a27ad50e4
+Hash: e82a7706a7a89cb2f34400a3371bf9ca
 Requires: Rcpp, assertthat, lazyeval
-
-Package: whisker
-Source: CRAN
-Version: 0.3-2
-Hash: 803d662762e532705c2c066a82d066e7
 
 Package: yaml
 Source: CRAN
