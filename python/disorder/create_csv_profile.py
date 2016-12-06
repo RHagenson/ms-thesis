@@ -66,6 +66,11 @@ def main():
         sys.exit(2)
 
     # Configure the action of each CLI option
+    # First loop for global variables with defaults
+    for (opt, arg) in opts:
+        if opt == "--date":
+            now = arg
+
     for (opt, arg) in opts:
         if opt in ("-d", "--dataDir"):  # Set high-level data directory location
             dataDir = arg
@@ -78,9 +83,6 @@ def main():
 
         if opt in ("-c",  "--cancerTypes"):
             cancerTypes = arg.split(',')
-
-        if opt == "--date":
-            now = arg
 
 
 def create_csv_profile((mut_file, long_short_file)):
