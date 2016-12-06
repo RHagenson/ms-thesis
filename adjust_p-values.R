@@ -40,6 +40,9 @@ if (is.null(opt$cancerType)){
 date <- as.character(opt$date)
 cancerType <- as.character(opt$cancerType)
 
+# Value not changed by CLI
+pValCutoff <- 0.05
+
 adjusted_frames <- correction(date=date, cancerType=cancerType)
 
 # Create a directory for the signficant results
@@ -48,26 +51,41 @@ dir.create(outDir, recursive = TRUE, showWarnings = FALSE)
 
 # Output the significant results
 # Write the two data.frames to file
-write.csv(adjusted_frames$long, file = paste(outDir, "long_log.csv", sep = "/"))
-write.csv(adjusted_frames$short, file = paste(outDir, "short_log.csv", sep = "/"))
+write.csv(adjusted_frames$long[,-1], file = paste(outDir, "long_log.csv", sep = "/"), row.names = F)
+write.csv(adjusted_frames$short[,-1], file = paste(outDir, "short_log.csv", sep = "/"), row.names = F)
 
 # Redirect output to file and STOUT
 sink(paste(outDir, "adjResults.txt", sep = "/"), split = TRUE)
 
 # Output the significant results for long files
-print(paste("The number of significant long values is:", as.character(sum(adjusted_frames$long$pValAdj < pValCutoff))))
-print("Value(s):")
-print(as.character(adjusted_frames$long$pVal[which(adjusted_frames$long$pValAdj < pValCutoff)]))
-print("Related isoform:")
-print(as.character(adjusted_frames$long$isoName[which(adjusted_frames$long$pValAdj < pValCutoff)]))
-print("Direction of significance:")
-print(as.character(adjusted_frames$long$pValDir[which(adjusted_frames$long$pValAdj < pValCutoff)]))
+cat(paste("The number of significant long values is: ", 
+          as.character(sum(adjusted_frames$long$pValAdj < pValCutoff))), 
+    fill=T)
+cat("Value(s): ", 
+    fill = T)
+cat(as.character(adjusted_frames$long$pVal[which(adjusted_frames$long$pValAdj < pValCutoff)]),
+    fill=T)
+cat("Related isoforms: ",
+    fill=T)
+cat(as.character(adjusted_frames$long$isoName[which(adjusted_frames$long$pValAdj < pValCutoff)]),
+    fill=T)
+cat("Direction of significance: ",
+    fill=T)
+cat(as.character(adjusted_frames$long$pValDir[which(adjusted_frames$long$pValAdj < pValCutoff)]),
+    fill=T)
 
 # Output the significant results for short files
-print(paste("The number of significant short values is:", as.character(sum(adjusted_frames$short$pValAdj < pValCutoff))))
-print("Value(s):")
-print(as.character(adjusted_frames$short$pVal[which(adjusted_frames$short$pValAdj < pValCutoff)]))
-print("Related isoform:")
-print(as.character(adjusted_frames$short$isoName[which(adjusted_frames$short$pValAdj < pValCutoff)]))
-print("Direction of significance:")
-print(as.character(adjusted_frames$short$pValDir[which(adjusted_frames$short$pValAdj < pValCutoff)]))
+cat(paste("The number of significant short values is: ", as.character(sum(adjusted_frames$short$pValAdj < pValCutoff))),
+    fill=T)
+cat("Value(s): ",
+    fill=T)
+cat(as.character(adjusted_frames$short$pVal[which(adjusted_frames$short$pValAdj < pValCutoff)]),
+    fill=T)
+cat("Related isoforms: ",
+    fill=T)
+cat(as.character(adjusted_frames$short$isoName[which(adjusted_frames$short$pValAdj < pValCutoff)]),
+    fill=T)
+cat("Direction of significance: ",
+    fill=T)
+cat(as.character(adjusted_frames$short$pValDir[which(adjusted_frames$short$pValAdj < pValCutoff)]),
+    fill=T)

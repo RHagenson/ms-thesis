@@ -18,11 +18,13 @@ correction <- function(date,
                                   "fdr",
                                   "none"),
                        preferredDirection = "+") {
+  
   # Select global variables
   pValCutoff = 0.1
   # Should correspond to which pValues represent higher disorder than average in LOG.csv files
   preferredDirection = preferredDirection
   
+  # Set default method
   if (length(method) > 1) {
     correctionMethod = "fdr"
   } else {
@@ -57,8 +59,9 @@ correction <- function(date,
                                full.names = TRUE,
                                recursive = FALSE)
   
-  # Approximate how many files will be the result in the end, assume most genes have at least 1 isoform
-  SELECT_LEN <- length(list.files(logsDir)) / 2
+  # Approximate how many files will be the result in the end since it is one per directory
+  # (in this use list.files lists the number of genes within the cancer type both long and short)
+  SELECT_LEN <- ceiling(length(list.files(logsDir))/2)
   
   # Track empty rows
   L_SELECT_ROW <-
@@ -95,20 +98,24 @@ correction <- function(date,
       stringsAsFactors=FALSE
     )
   
-  selectLongCache <- paste(tempdir(), 
+  # Note cache cannot be built of tempdir(), which is regenerated for each rsession (each run of the script)
+  cat(paste("Creating cache at: /tmp/"), fill=TRUE)
+  selectLongCache <- paste("/tmp/", 
                            paste(cancerType, ".long.tmp", sep=""), sep="/")
-  selectShortCache <- paste(tempdir(), 
+  selectShortCache <- paste("/tmp/", 
                             paste(cancerType, ".short.tmp", sep=""), sep="/")
   
   # Load in the past select isoforms if it has been cached
   if (file.exists(selectLongCache) &
       file.exists(selectShortCache)) {
+    print("Using cached select isoform files")
     # Eventually this cache should just be the long/short files with full abs path 
     # then this part of the if/else will fill in the remaining values as they would be done below
     # For now it is the entire selectIsoforms data.frame object written and read as a csv file
     selectIsoformsLong <- read.table(selectLongCache)
     selectIsoformsShort <- read.table(selectShortCache)
   } else {
+    cat("Regenerating select isoform files", fill = TRUE)
     # Explore each directory and select the top isoform from each for both long and short files
     # These should be the same isoform, but they are processed separately.
     for (directory in logsFilesVector) {
@@ -126,8 +133,10 @@ correction <- function(date,
       )) {
         if (grepl("\\.[0-9]{3}\\.long", file)) {
           longFiles <- c(longFiles, file)
+          #print(paste("Number of long files found:", as.character(length(longFiles)), "in", directory))
         } else if (grepl("\\.[0-9]{3}\\.short", file)) {
           shortFiles <- c(shortFiles, file)
+          #print(paste("Number of short files found:", as.character(length(shortFiles)), "in", directory))
         }
       } # End files for loop
       
@@ -212,9 +221,26 @@ correction <- function(date,
         
         # Iterate row in question
         L_SELECT_ROW <- L_SELECT_ROW + 1
-      } # End finding the top longFile and adding it p-value to the best vector
+        
+        # Inform user of current progress
+        if(round((L_SELECT_ROW/SELECT_LEN)*100, digits = 2) %% 5 == 0) {
+          cat(paste("Approximately", 
+                    round((L_SELECT_ROW/SELECT_LEN)*100, digits = 2), 
+                    "% through processing all long files"), 
+              fill = TRUE)
+          cat(paste("\t", 
+                    "Current row number:",
+                    L_SELECT_ROW),
+              fill = TRUE)
+          cat(paste("\t", 
+                    "Most recent selected isoform:",
+                    SELECT_ROW$isoName), 
+              fill=TRUE)
+        }
+        
+      } # End finding the top longFile and adding it to the best vector
       
-      # Find the top shortFile and add its p-value to the best vector
+      # Find the top shortFile and add it to the best vector
       if (length(shortFiles) > 0) {
         # Read files into memory
         HANDLE <- apply(shortDataFrame,
@@ -269,27 +295,48 @@ correction <- function(date,
           
         # Iterate row in question
         S_SELECT_ROW <- S_SELECT_ROW + 1
+        
+        # Inform user of current progress
+        if(round((S_SELECT_ROW/SELECT_LEN)*100, digits = 2) %% 5 == 0) {
+          cat(paste("Approximately", 
+                    round((S_SELECT_ROW/SELECT_LEN)*100, digits = 2), 
+                    "% through processing all short files"),
+              fill = TRUE)
+          cat(paste("\t", 
+                    "Current row number:",
+                    S_SELECT_ROW),
+              fill = TRUE)
+          cat(paste("\t", 
+                    "Most recent selected isoform:",
+                    SELECT_ROW$isoName), 
+              fill=TRUE)
+        }
+        
       } # End finding the top shortFile and adding it p-value to the best vector
     } # End directory for loop
     
     # Remove empty rows from select data.frames
+    cat("Removing excess rows (empty) rows from select isoform tables", fill=TRUE)
     selectIsoformsLong <- na.omit(selectIsoformsLong)
+    selectIsoformsLong <- selectIsoformsLong[selectIsoformsLong$isoLength != 0, ] 
     selectIsoformsShort <- na.omit(selectIsoformsShort)
+    selectIsoformsShort <- selectIsoformsShort[selectIsoformsShort$isoLength != 0, ] 
   } # End else for nonexistent cache 
   
   # Cache the previous results
+  cat("Caching select isoform (long and short)", fill=TRUE)
   write.csv(file = selectLongCache, selectIsoformsLong)
   write.csv(file = selectShortCache, selectIsoformsShort)
   
   # Output to the user
-  print("Computing the adjusted long p-values")
+  cat("Computing the adjusted long p-values", fill=TRUE)
   selectIsoformsLong$pValAdj <- p.adjust(apply(selectIsoformsLong,
                                                1,
                                                function(row)
                                                  as.numeric(as.character(row['pVal']))),
                                          method = correctionMethod)
   
-  print("Computing the adjusted short p-values")
+  cat("Computing the adjusted short p-values", fill=TRUE)
   selectIsoformsShort$pValAdj <- p.adjust(apply(selectIsoformsShort,
                                                 1,
                                                 function(row)
