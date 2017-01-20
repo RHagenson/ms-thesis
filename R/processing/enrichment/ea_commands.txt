@@ -1,0 +1,26 @@
+# Extract all significant disorder position results for enrichment analysis
+cut -f 2 DisorderPositionResults.tsv | tr -d " " | grep -v Gene | sort | uniq > pos_all.txt
+
+# Extract significant disorder position results for enrichment analysis from only the top two cancers
+grep "^KICH|^SKCM" DisorderPositionResults.tsv | cut -f 2 | tr -d " " | grep -v Gene | sort | uniq > pos_top_two.txt
+
+# Extract significant disorder result for enrichment analysis for only the 'long' profiles
+awk -F"\t" '{if ($5 ~ /long/) print $2}' DisorderPositionResults.tsv | sort | uniq >> pos_long.txt
+
+# Extract significant disorder result for enrichment analysis for only the 'short' profiles
+awk -F"\t" '{if ($5 ~ /short/) print $2}' DisorderPositionResults.tsv | sort | uniq >> pos_short.txt
+
+# Extract significant disorder positions results for enrichment analysis for records in the negative (concentration in more *ordered* positions)
+awk -F"\t" '{if ($4 == 0) print $2}' DisorderPositionResults.tsv | sort | uniq >> pos_negative_disorder.txt 
+
+# Extract significant disorder positions results for enrichment analysis for records in the positive (concentration in more *disordered* positions)
+awk -F"\t" '{if ($4 == 1) print $2}' DisorderPositionResults.tsv | sort | uniq >> pos_positive_disorder.txt 
+
+###
+### Confirmation and checks
+###
+# Those genes that have both long and short profiles (13 of them)
+grep -f pos_long.txt pos_short.txt
+
+# Those genes that have both positive and negative results (2 of them)
+grep -f pos_positive_disorder.txt pos_negative_disorder.txt
