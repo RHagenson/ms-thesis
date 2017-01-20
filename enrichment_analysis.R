@@ -76,8 +76,12 @@ if (is.null(opt$output)){
 # Store CLI arguments in easier-to-use variables
 go_file <- as.character(opt$go)
 ann_file <- as.character(opt$annotation)
-subset_file <- as.character(opt$subset)
-background_file <- as.character(opt$background)
+
+cat("Building a vector from: ", opt$subset, "\n")
+subset_list <- scan(opt$subset, what="character")
+
+cat("Building a vector from: ", opt$background, "\n")
+background_list <- scan(opt$background, what="character")
 output_file <- as.character(opt$output)
 term <- if(opt$term == "BP") {
     "biological_process"
@@ -114,13 +118,14 @@ cat("Creating the annotation list from: ", ann_file, "\n")
 AnnList <- createAnnList(annFile=ann_file)
 
 # Step 7, Perform Hypergeometric test for Enrichment Analysis
+# Subset has to be a vector, not a file (load in)...same for background
 cat("Performing the hypergeometric test for enrichment analysis.\n")
-enrichment <- enrichmentAnalysis(subset=subset_file, 
-                                 allProteins=background_file, 
+enrichment <- enrichmentAnalysis(subset=subset_list,
+                                 allProteins=background_list,
                                  annotations=AnnList,
-                                 GOGraph=GOGraph[[term]], 
-                                 fdr=TRUE, 
-                                 underrepresented=FALSE)
+                                 GOGraph=GOGraph[[term]],
+                                 fdr = TRUE,
+                                 underrepresented = FALSE)
 
 # Step 8, Convert protein centric annotation list to GO term centric list
 cat("Creating a protein-centric annotation list.\n")
@@ -128,7 +133,7 @@ termCentricAnn <- getTermCentricAnn(annotations=AnnList)
 
 # Step 9, Create the enrichment table to aid visualization
 cat("Outputting the enrichment table at: ", output_file, "\n")
-createEnrichmentTable(subset=subset_file, 
+createEnrichmentTable(subset=subset_list, 
                       termCentricAnn=termCentricAnn, 
                       enrichment=enrichment, 
                       GOGraph=GOGraph[[term]], 
