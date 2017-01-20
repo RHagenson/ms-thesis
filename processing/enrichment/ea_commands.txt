@@ -16,6 +16,9 @@ awk -F"\t" '{if ($4 == 0) print $2}' DisorderPositionResults.tsv | sort | uniq >
 # Extract significant disorder positions results for enrichment analysis for records in the positive (concentration in more *disordered* positions)
 awk -F"\t" '{if ($4 == 1) print $2}' DisorderPositionResults.tsv | sort | uniq >> pos_positive_disorder.txt 
 
+# Personal validation, create set without P53 to ensure it is not the driver
+cat pos_all.txt | grep -v P53 > pos_noP53.txt
+
 ###
 ### Confirmation and checks
 ###
