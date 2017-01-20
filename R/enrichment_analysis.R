@@ -29,17 +29,17 @@ option_list = list(
   make_option(c("-s", "--subset"), 
               type="character", 
               default=NULL, 
-              help="The subset, a list of gene names", 
+              help="A list of files, delimited only by commas, with each containing a gene identifiers (each on a new line)", 
               metavar="character"),
   make_option(c("-b", "--background"), 
               type="character", 
               default=NULL, 
-              help="The background, a list of gene names", 
+              help="A file that contains background gene identifiers (each on a new line)", 
               metavar="character"),
   make_option(c("-o", "--output"), 
               type="character", 
               default=NULL, 
-              help="The output file for enrichment table results", 
+              help="Any additional naming scheme for output files (defaults to being 'table_<subset_file>.tsv')", 
               metavar="character")
 );
 
@@ -68,21 +68,18 @@ if (is.null(opt$background)){
   print_help(opt_parser)
   stop("-b/--background is a required argument.n", call.=FALSE)
 }
-if (is.null(opt$output)){
-  print_help(opt_parser)
-  stop("-o/--output is a required argument.n", call.=FALSE)
-}
 
 # Store CLI arguments in easier-to-use variables
 go_file <- as.character(opt$go)
 ann_file <- as.character(opt$annotation)
 
-cat("Building a vector from: ", opt$subset, "\n")
-subset_list <- scan(opt$subset, what="character")
+subset_files_list <- strsplit(opt$subset, ",")
 
-cat("Building a vector from: ", opt$background, "\n")
+print(subset_files_list)
+
+cat("Loading in the background profile from: ", opt$background, "\n")
 background_list <- scan(opt$background, what="character")
-output_file <- as.character(opt$output)
+
 term <- if(opt$term == "BP") {
     "biological_process"
   } else if (opt$term == "MF") {
@@ -117,26 +114,40 @@ GODict <- createGODict(goFile=go_file)
 cat("Creating the annotation list from: ", ann_file, "\n")
 AnnList <- createAnnList(annFile=ann_file)
 
-# Step 7, Perform Hypergeometric test for Enrichment Analysis
-# Subset has to be a vector, not a file (load in)...same for background
-cat("Performing the hypergeometric test for enrichment analysis.\n")
-enrichment <- enrichmentAnalysis(subset=subset_list,
-                                 allProteins=background_list,
-                                 annotations=AnnList,
-                                 GOGraph=GOGraph[[term]],
-                                 fdr = TRUE,
-                                 underrepresented = FALSE)
-
+# Out of order because it only needs to be run once and takes a long time
 # Step 8, Convert protein centric annotation list to GO term centric list
 cat("Creating a protein-centric annotation list.\n")
 termCentricAnn <- getTermCentricAnn(annotations=AnnList)
 
-# Step 9, Create the enrichment table to aid visualization
-cat("Outputting the enrichment table at: ", output_file, "\n")
-createEnrichmentTable(subset=subset_list, 
-                      termCentricAnn=termCentricAnn, 
-                      enrichment=enrichment, 
-                      GOGraph=GOGraph[[term]], 
-                      GODict=GODict, 
-                      pvalue=pValCutoff, 
-                      outfile=output_file)
+###
+### Begin looping through the provided subset files and run the remainder steps
+###
+
+for(entry in subset_files_list) {
+  # Create the subset list
+  subset_list <- scan(entry, what="character")
+  output_file <- paste0("table_", 
+                        sub("(.*\\/)([^.]+)(\\.[[:alnum:]]+$)", 
+                            "\\2", 
+                            entry), 
+                        ".tsv")
+  
+  # Step 7, Perform Hypergeometric test for Enrichment Analysis
+  cat("Performing the hypergeometric test for enrichment analysis.\n")
+  enrichment <- enrichmentAnalysis(subset=subset_list, 
+                                   allProteins=background_list, 
+                                   annotations=AnnList,
+                                   GOGraph=GOGraph[[term]], 
+                                   fdr=TRUE, 
+                                   underrepresented=FALSE)
+
+  # Step 9, Create the enrichment table to aid visualization
+  cat("Outputting the enrichment table at: ", output_file, "\n")
+  createEnrichmentTable(subset=subset_list, 
+                        termCentricAnn=termCentricAnn,
+                        enrichment=enrichment,
+                        GOGraph=GOGraph[[term]],
+                        GODict=GODict,
+                        pvalue=pValCutoff,
+                        outfile=output_file)
+}
