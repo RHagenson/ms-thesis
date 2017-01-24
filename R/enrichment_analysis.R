@@ -78,7 +78,7 @@ subset_files_list <- strsplit(opt$subset, ",")
 print(subset_files_list)
 
 cat("Loading in the background profile from: ", opt$background, "\n")
-background_list <- scan(opt$background, what="character")
+background_frame <- read.table(opt$background)
 
 term <- if(opt$term == "BP") {
     "biological_process"
@@ -125,7 +125,7 @@ termCentricAnn <- getTermCentricAnn(annotations=AnnList)
 
 for(entry in subset_files_list) {
   # Create the subset list
-  subset_list <- scan(entry, what="character")
+  subset_frame <- read.table(entry)
   output_file <- paste0("table_", 
                         sub("(.*\\/)([^.]+)(\\.[[:alnum:]]+$)", 
                             "\\2", 
@@ -134,8 +134,8 @@ for(entry in subset_files_list) {
   
   # Step 7, Perform Hypergeometric test for Enrichment Analysis
   cat("Performing the hypergeometric test for enrichment analysis.\n")
-  enrichment <- enrichmentAnalysis(subset=subset_list, 
-                                   allProteins=background_list, 
+  enrichment <- enrichmentAnalysis(subset=subset_frame$V1, 
+                                   allProteins=background_frame$V1, 
                                    annotations=AnnList,
                                    GOGraph=GOGraph[[term]], 
                                    fdr=TRUE, 
@@ -143,7 +143,7 @@ for(entry in subset_files_list) {
 
   # Step 9, Create the enrichment table to aid visualization
   cat("Outputting the enrichment table at: ", output_file, "\n")
-  createEnrichmentTable(subset=subset_list, 
+  createEnrichmentTable(subset=subset_frame$V1, 
                         termCentricAnn=termCentricAnn,
                         enrichment=enrichment,
                         GOGraph=GOGraph[[term]],
