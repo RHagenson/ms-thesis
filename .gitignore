@@ -4,6 +4,8 @@
 # Ignore any output files
 outputs/*
 figs/*
+processing/*
+
 # Nohup
 nohup.out
 # History files
