@@ -7,16 +7,24 @@
 
 source("R-defs/isoform_length.R")
 
-correction <- function(date, cancerType, 
-                       method=c("holm", "hochberg", "hommel", 
-                                "bonferroni", "BH", "BY", 
-                                "fdr", "none"),
-                       preferredDirection="+") {
+correction <- function(date,
+                       cancerType,
+                       method = c("holm",
+                                  "hochberg",
+                                  "hommel",
+                                  "bonferroni",
+                                  "BH",
+                                  "BY",
+                                  "fdr",
+                                  "none"),
+                       preferredDirection = "+") {
+  
   # Select global variables
   pValCutoff = 0.1
   # Should correspond to which pValues represent higher disorder than average in LOG.csv files
   preferredDirection = preferredDirection
   
+  # Set default method
   if (length(method) > 1) {
     correctionMethod = "fdr"
   } else {
@@ -25,9 +33,11 @@ correction <- function(date, cancerType,
   
   # Add cancerType onto logsDir to build the cancer-specific directory
   logsDir <- paste("./outputs", date, cancerType, sep = "/")
-
+  
   # Remove any double slashes
-  logsDir <- gsub(pattern = "//", replacement = "/", x = logsDir)
+  logsDir <- gsub(pattern = "//",
+                  replacement = "/",
+                  x = logsDir)
   
   ###
   ### Begin creating long and short file vectors
@@ -37,8 +47,11 @@ correction <- function(date, cancerType,
     # Do nothing for now
   } else {
     stop(paste(
-      "The date provided:", date, "does not appear to be in form DD-MM-YY"
-    ), call. = FALSE)
+      "The date provided:",
+      date,
+      "does not appear to be in form DD-MM-YY"
+    ),
+    call. = FALSE)
   }
   
   # Gather all the directories in the cancer type subdirectory (all gene directories)
@@ -46,143 +59,291 @@ correction <- function(date, cancerType,
                                full.names = TRUE,
                                recursive = FALSE)
   
+  # Approximate how many files will be the result in the end since it is one per directory
+  # (in this use list.files lists the number of genes within the cancer type both long and short)
+  SELECT_LEN <- ceiling(length(list.files(logsDir))/2)
+  
+  # Track empty rows
+  L_SELECT_ROW <-
+    1 # Used to track where the next "empty" row is in the select longs
+  S_SELECT_ROW <-
+    1 # Used to track where the next "empty" row is in the select shorts
+  
   ###
   ### Begin determining the top isoform in each gene
   ### Reminder: this is done by number of mutations, length, then numerically/alphabetically
   ###
-  selectIsoformsLong <-
-    data.frame()  # The data.frame for the "best" isoforms found in long files
-  selectIsoformsShort <-
-    data.frame()  # The data.frame for the "best" isoforms found in short files
+  # The data.frame for the "best" isoforms found in long files
+  selectIsoformsLong <- data.frame(
+    longFiles = character(SELECT_LEN),
+    numMuts = numeric(SELECT_LEN),
+    pVal = numeric(SELECT_LEN),
+    isoName = character(SELECT_LEN),
+    isoLength = numeric(SELECT_LEN),
+    pValDir = character(SELECT_LEN),
+    pValAdj = numeric(SELECT_LEN),
+    stringsAsFactors=FALSE
+  )
   
-  # Explore each directory and select the top isoform from each for both long and short files
-  # These should be the same isoform, but they are processed separately.
-  for (directory in logsFilesVector) {
-    longFiles <- vector("character")
-    shortFiles <- vector("character")
-    longDataFrame <- data.frame()
-    shortDataFrame <- data.frame()
-    
-    # Get only the individual isoform files
-    for (file in list.files(
-      directory, pattern = "LOG.csv", full.names = TRUE, recursive = TRUE
-    )) {
-      if (grepl("\\.[0-9]{3}\\.long", file)) {
-        longFiles <- c(longFiles, file)
-      } else if (grepl("\\.[0-9]{3}\\.short", file)) {
-        shortFiles <- c(shortFiles, file)
-      }
-    } # End files for loop
-
-    # Create a dataframe for easy mutliple column sorting, can be combined into one by isoform name only
-    # absent of .long or .short file name
-    longDataFrame <- as.data.frame(longFiles)
-    shortDataFrame <- as.data.frame(shortFiles)
-    
-    # Find the top longFile and add its p-value to the best vector
-    if (length(longFiles) > 0) {
-      # Set number of mutations column via entire longFiles vector
-      longDataFrame$numMuts <-
-        apply(longDataFrame, 1, function(row)
-          read.table(as.character(row["longFiles"]), sep = ",")$V4)
+  # The data.frame for the "best" isoforms found in short files
+  selectIsoformsShort <-
+    data.frame(
+      shortFiles = character(SELECT_LEN),
+      numMuts = numeric(SELECT_LEN),
+      pVal = numeric(SELECT_LEN),
+      isoName = character(SELECT_LEN),
+      isoLength = numeric(SELECT_LEN),
+      pValDir = character(SELECT_LEN),
+      pValAdj = numeric(SELECT_LEN),
+      stringsAsFactors=FALSE
+    )
+  
+  # Note cache cannot be built of tempdir(), which is regenerated for each rsession (each run of the script)
+  cat(paste("Creating cache at: /tmp/"), fill=TRUE)
+  selectLongCache <- paste("/tmp/", 
+                           paste(cancerType, ".long.tmp", sep=""), sep="/")
+  selectShortCache <- paste("/tmp/", 
+                            paste(cancerType, ".short.tmp", sep=""), sep="/")
+  
+  # Load in the past select isoforms if it has been cached
+  if (file.exists(selectLongCache) &
+      file.exists(selectShortCache)) {
+    print("Using cached select isoform files")
+    # Eventually this cache should just be the long/short files with full abs path 
+    # then this part of the if/else will fill in the remaining values as they would be done below
+    # For now it is the entire selectIsoforms data.frame object written and read as a csv file
+    selectIsoformsLong <- read.table(selectLongCache)
+    selectIsoformsShort <- read.table(selectShortCache)
+  } else {
+    cat("Regenerating select isoform files", fill = TRUE)
+    # Explore each directory and select the top isoform from each for both long and short files
+    # These should be the same isoform, but they are processed separately.
+    for (directory in logsFilesVector) {
+      longFiles <- vector("character")
+      shortFiles <- vector("character")
+      longDataFrame <- data.frame()
+      shortDataFrame <- data.frame()
       
-      # Set the pValue of each entry in the longFiles vector
-      longDataFrame$pVal <-
-        apply(longDataFrame, 1, function(row)
-          read.table(as.character(row["longFiles"]), sep = ",")$V5)
+      # Get only the individual isoform files
+      for (file in list.files(
+        directory,
+        pattern = "LOG.csv",
+        full.names = TRUE,
+        recursive = TRUE
+      )) {
+        if (grepl("\\.[0-9]{3}\\.long", file)) {
+          longFiles <- c(longFiles, file)
+          #print(paste("Number of long files found:", as.character(length(longFiles)), "in", directory))
+        } else if (grepl("\\.[0-9]{3}\\.short", file)) {
+          shortFiles <- c(shortFiles, file)
+          #print(paste("Number of short files found:", as.character(length(shortFiles)), "in", directory))
+        }
+      } # End files for loop
       
-      # Set the isoName by separating it from the full file path
-      longDataFrame$isoName <-
-        apply(longDataFrame, 1, function(row)
-          basename(dirname(as.character(row["longFiles"]))))
+      # Create a dataframe for easy mutliple column sorting
+      longDataFrame <- as.data.frame(
+        longFiles,
+        numMuts = numeric(length(longFiles)),
+        pVal = numeric(length(longFiles)),
+        isoName = character(length(longFiles)),
+        isoLength = numeric(length(longFiles)),
+        pValDir = character(length(longFiles)),
+        pValAdj = numeric(length(longFiles)),
+        stringsAsFactors=FALSE
+      )
+      shortDataFrame <- as.data.frame(
+        shortFiles,
+        numMuts = numeric(length(shortFiles)),
+        pVal = numeric(length(shortFiles)),
+        isoName = character(length(shortFiles)),
+        isoLength = numeric(length(shortFiles)),
+        pValDir = character(length(shortFiles)),
+        pValAdj = numeric(length(longFiles)),
+        stringsAsFactors=FALSE
+      )
       
-      # Set length of each isofom by running isoform_length()
-      longDataFrame$isoLength <-
-        apply(longDataFrame, 1, function(row)
-          isoform_length(row["isoName"]))
-      
-      # Set direction of p-value
-      longDataFrame$pValDir <-
-        apply(longDataFrame, 1, function(row)
-          read.table(as.character(row["longFiles"]), sep = ",")$V6)
-      
-      # Gives the preferred direction precedence in sorting if it is present
-      if (preferredDirection %in% longDataFrame$pValDir) {
+      # Find the top longFile and add its p-value to the best vector
+      if (length(longFiles) > 0) {
+        # Read files into memory
+        HANDLE <- apply(longDataFrame,
+                        1,
+                        function(row)
+                          read.table(as.character(row["longFiles"]),
+                                     sep = ","))
+        
+        # Set number of mutations column via entire longFiles vector
+        longDataFrame$numMuts <-
+          lapply(HANDLE, function(row)
+            as.numeric(as.character(row$V4)))
+        
+        # Set the pValue of each entry in the longFiles vector
+        longDataFrame$pVal <-
+          lapply(HANDLE, function(row)
+            as.numeric(as.character(row$V5)))
+        
+        # Set the isoName by separating it from the full file path, .long is maintained for passing into
+        # isoform_length()
+        longDataFrame$isoName <- lapply(longFiles,
+                                        function(full)
+                                          basename(dirname(full)))
+        
+        
+        # Set length of each isofom by running isoform_length()
+        longDataFrame$isoLength <- apply(longDataFrame,
+                                         1,
+                                         function(row)
+                                           as.numeric(as.character(isoform_length(row["isoName"]))))
+        
+        # Set direction of p-value
         longDataFrame$pValDir <-
-          relevel(longDataFrame$pValDir, preferredDirection)
-      }
+          lapply(HANDLE, function(row)
+            as.character(row$V6))
+        
+        # Gives the preferred direction precedence in sorting if it is present
+        if (preferredDirection %in% longDataFrame$pValDir) {
+          longDataFrame$pValDir <- relevel(factor(longDataFrame$pValDir,
+                                                  levels = c("+", "-")),
+                                           preferredDirection)
+        }
+        
+        # Add top entry/row to selectIsoformsLong data.frame
+        longDataFrame <- as.data.frame(lapply(longDataFrame, unlist), stringsAsFactors=FALSE)
+        SELECT_ROW <- longDataFrame[with(longDataFrame,
+                                         order(-numMuts, isoLength, isoName)),][1,]
+        
+        # Individually file values
+        selectIsoformsLong[L_SELECT_ROW,]$longFiles <- SELECT_ROW$longFiles
+        selectIsoformsLong[L_SELECT_ROW,]$numMuts <- SELECT_ROW$numMuts
+        selectIsoformsLong[L_SELECT_ROW,]$pVal <- SELECT_ROW$pVal
+        selectIsoformsLong[L_SELECT_ROW,]$isoName <- SELECT_ROW$isoName
+        selectIsoformsLong[L_SELECT_ROW,]$isoLength<- SELECT_ROW$isoLength
+        selectIsoformsLong[L_SELECT_ROW,]$pValDir <- SELECT_ROW$pValDir
+        
+        # Iterate row in question
+        L_SELECT_ROW <- L_SELECT_ROW + 1
+        
+        # Inform user of current progress
+        if(round((L_SELECT_ROW/SELECT_LEN)*100, digits = 2) %% 5 == 0) {
+          cat(paste("Approximately", 
+                    round((L_SELECT_ROW/SELECT_LEN)*100, digits = 2), 
+                    "% through processing all long files"), 
+              fill = TRUE)
+          cat(paste("\t", 
+                    "Current row number:",
+                    L_SELECT_ROW),
+              fill = TRUE)
+          cat(paste("\t", 
+                    "Most recent selected isoform:",
+                    SELECT_ROW$isoName), 
+              fill=TRUE)
+        }
+        
+      } # End finding the top longFile and adding it to the best vector
       
-      # Add top entry/row to selectIsoformsLong data.frame
-      selectIsoformsLong <- rbind(selectIsoformsLong,
-                                  longDataFrame[with(longDataFrame,
-                                                     order(-numMuts, isoLength, isoName)), ][1, ])
-      
-    } # End finding the top longFile and adding it p-value to the best vector
-    
-    # Find the top shortFile and add its p-value to the best vector
-    if (length(shortFiles) > 0) {
-      # Set number of mutations column via entire shortFiles vector
-      shortDataFrame$numMuts <-
-        apply(shortDataFrame, 1, function(row)
-          read.table(as.character(row["shortFiles"]), sep = ",")$V4)
-      
-      # Set the pValue of each entry in the shortFiles vector
-      shortDataFrame$pVal <-
-        apply(shortDataFrame, 1, function(row)
-          read.table(as.character(row["shortFiles"]), sep = ",")$V5)
-      
-      # Set the isoName by separating it from the full file path
-      shortDataFrame$isoName <-
-        apply(shortDataFrame, 1, function(row)
-          basename(dirname(as.character(row["shortFiles"]))))
-      
-      # Set length of each isofom by running isoform_length()
-      shortDataFrame$isoLength <-
-        apply(shortDataFrame, 1, function(row)
-          isoform_length(row["isoName"]))
-      
-      # Set direction of p-value
-      shortDataFrame$pValDir <-
-        apply(shortDataFrame, 1, function(row)
-          read.table(as.character(row["shortFiles"]), sep = ",")$V6)
-      
-      # Gives '+' direction precedence in sorting if it is present
-      if (preferredDirection %in% shortDataFrame$pValDir) {
+      # Find the top shortFile and add it to the best vector
+      if (length(shortFiles) > 0) {
+        # Read files into memory
+        HANDLE <- apply(shortDataFrame,
+                        1,
+                        function(row)
+                          read.table(as.character(row["shortFiles"]),
+                                     sep = ","))
+        
+        # Set number of mutations column via entire shortFiles vector
+        shortDataFrame$numMuts <- lapply(HANDLE, function(row)
+          row$V4)
+        
+        # Set the pValue of each entry in the shortFiles vector
+        shortDataFrame$pVal <- lapply(HANDLE, function(row)
+          row$V5)
+        
+        # Set the isoName by separating it from the full file path
+        shortDataFrame$isoName <- lapply(shortFiles,
+                                         function(full)
+                                           basename(dirname(full)))
+        
+        # Set length of each isofom by running isoform_length()
+        shortDataFrame$isoLength <- apply(shortDataFrame,
+                                          1,
+                                          function(row)
+                                            isoform_length(row["isoName"]))
+        
+        # Set direction of p-value
         shortDataFrame$pValDir <-
-          relevel(shortDataFrame$pValDir, preferredDirection)
-      }
-      
-      # Add top entry/row to selectIsoformsShort data.frame
-      selectIsoformsShort <- rbind(selectIsoformsShort,
-                                   shortDataFrame[with(shortDataFrame,
-                                                       order(-numMuts, isoLength, isoName)),][1,])
-    } # End finding the top shortFile and adding it p-value to the best vector
-  } # End directory for loop
+          lapply(HANDLE, function(row)
+            as.character(row$V6))
+        
+        # Gives '+' direction precedence in sorting if it is present
+        if (preferredDirection %in% shortDataFrame$pValDir) {
+          shortDataFrame$pValDir <- relevel(factor(shortDataFrame$pValDir,
+                                                   levels = c("+", "-")),
+                                            preferredDirection)
+        }
+        
+        # Add top entry/row to selectIsoformsLong data.frame
+        shortDataFrame <- as.data.frame(lapply(shortDataFrame, unlist), stringsAsFactors=FALSE)
+        SELECT_ROW <- shortDataFrame[with(shortDataFrame,
+                                          order(-numMuts, isoLength, isoName)), ][1, ]
+        
+        # Individually file values
+        selectIsoformsShort[S_SELECT_ROW,]$longFiles <- SELECT_ROW$longFiles
+        selectIsoformsShort[S_SELECT_ROW,]$numMuts <- SELECT_ROW$numMuts
+        selectIsoformsShort[S_SELECT_ROW,]$pVal <- SELECT_ROW$pVal
+        selectIsoformsShort[S_SELECT_ROW,]$isoName <- SELECT_ROW$isoName
+        selectIsoformsShort[S_SELECT_ROW,]$isoLength<- SELECT_ROW$isoLength
+        selectIsoformsShort[S_SELECT_ROW,]$pValDir <- SELECT_ROW$pValDir
+          
+        # Iterate row in question
+        S_SELECT_ROW <- S_SELECT_ROW + 1
+        
+        # Inform user of current progress
+        if(round((S_SELECT_ROW/SELECT_LEN)*100, digits = 2) %% 5 == 0) {
+          cat(paste("Approximately", 
+                    round((S_SELECT_ROW/SELECT_LEN)*100, digits = 2), 
+                    "% through processing all short files"),
+              fill = TRUE)
+          cat(paste("\t", 
+                    "Current row number:",
+                    S_SELECT_ROW),
+              fill = TRUE)
+          cat(paste("\t", 
+                    "Most recent selected isoform:",
+                    SELECT_ROW$isoName), 
+              fill=TRUE)
+        }
+        
+      } # End finding the top shortFile and adding it p-value to the best vector
+    } # End directory for loop
+    
+    # Remove empty rows from select data.frames
+    cat("Removing excess rows (empty) rows from select isoform tables", fill=TRUE)
+    selectIsoformsLong <- na.omit(selectIsoformsLong)
+    selectIsoformsLong <- selectIsoformsLong[selectIsoformsLong$isoLength != 0, ] 
+    selectIsoformsShort <- na.omit(selectIsoformsShort)
+    selectIsoformsShort <- selectIsoformsShort[selectIsoformsShort$isoLength != 0, ] 
+  } # End else for nonexistent cache 
+  
+  # Cache the previous results
+  cat("Caching select isoform (long and short)", fill=TRUE)
+  write.csv(file = selectLongCache, selectIsoformsLong)
+  write.csv(file = selectShortCache, selectIsoformsShort)
   
   # Output to the user
-  print("Computing the adjusted long p-values")
+  cat("Computing the adjusted long p-values", fill=TRUE)
   selectIsoformsLong$pValAdj <- p.adjust(apply(selectIsoformsLong,
-                                            1,
-                                            function(row)
-                                              if (row['pValDir'] != preferredDirection) {
-                                                1 - as.numeric(row['pVal'])
-                                              }else{
-                                                as.numeric(row['pVal'])
-                                              }),
-                                      method = correctionMethod)
+                                               1,
+                                               function(row)
+                                                 as.numeric(as.character(row['pVal']))),
+                                         method = correctionMethod)
   
-  print("Computing the adjusted short p-values")
+  cat("Computing the adjusted short p-values", fill=TRUE)
   selectIsoformsShort$pValAdj <- p.adjust(apply(selectIsoformsShort,
-                                             1,
-                                             function(row)
-                                               if (row['pValDir'] != preferredDirection) {
-                                                 1 - as.numeric(row['pVal'])
-                                               }else{
-                                                 as.numeric(row['pVal'])
-                                               }),
-                                       method = correctionMethod)
+                                                1,
+                                                function(row)
+                                                  as.numeric(as.character(row['pVal']))),
+                                          method = correctionMethod)
   
   
-  return(list("long" = selectIsoformsLong, 
+  return(list("long" = selectIsoformsLong,
               "short" = selectIsoformsShort))
-  }
+}
