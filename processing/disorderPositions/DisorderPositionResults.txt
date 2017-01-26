@@ -1,0 +1,377 @@
+# ACC
+The number of significant long values is:  0
+Value(s): 
+
+Related isoforms: 
+
+Direction of significance: 
+
+The number of significant short values is:  1
+Value(s): 
+0
+Related isoforms: 
+SKIDA1.001.short
+Direction of significance: 
+-
+
+
+
+# BLCA
+No significant results
+
+
+
+# BRCA
+The number of significant long values is:  1
+Value(s): 
+0
+Related isoforms: 
+TP53.003.long
+Direction of significance: 
+1
+The number of significant short values is:  1
+Value(s): 
+0
+Related isoforms: 
+TP53.003.short
+Direction of significance: 
+1
+
+
+
+# CESC
+No significant results
+
+
+
+
+# CHOL
+No significant results
+
+
+
+# COADREAD
+The number of significant long values is:  5
+Value(s): 
+0 0 9e-06 8e-06 0
+Related isoforms: 
+ATXN1.001.long NUMBL.001.long PTPN18.001.long TP53.006.long UBXN11.002.long
+Direction of significance: 
+- - 1 1 -
+The number of significant short values is:  1
+Value(s): 
+2e-06
+Related isoforms: 
+MAML2.001.short
+Direction of significance: 
+1
+
+
+
+# DLBC
+The number of significant long values is:  2
+Value(s): 
+0 0
+Related isoforms: 
+MUC4.003.long PPM1E.001.long
+Direction of significance: 
+2 -
+The number of significant short values is:  2
+Value(s): 
+5e-06 4e-06
+Related isoforms: 
+MUC4.003.short PPM1E.001.short
+Direction of significance: 
+2 -
+
+
+
+# ESCA
+No significant results
+
+
+
+# GBM
+The number of significant long values is:  1
+Value(s): 
+1e-06
+Related isoforms: 
+TP53.006.long
+Direction of significance: 
+1
+The number of significant short values is:  1
+Value(s): 
+0
+Related isoforms: 
+TP53.006.short
+Direction of significance: 
+1
+
+
+
+# HNSC
+The number of significant long values is:  2
+Value(s): 
+0 0
+Related isoforms: 
+NFE2L2.003.long TP53.003.long
+Direction of significance: 
+1 1
+The number of significant short values is:  3
+Value(s): 
+9e-06 1.1e-05 5e-06
+Related isoforms: 
+NBPF10.001.short NFE2L2.003.short TP53.003.short
+Direction of significance: 
+1 1 1
+
+
+
+# KICH
+The number of significant long values is:  5
+Value(s): 
+5.3e-05 0 0 2.8e-05 1e-06
+Related isoforms: 
+HOMEZ.001.long MUC4.003.long MUC6.001.long NRD1.001.long TAF7L.001.long
+Direction of significance: 
+- - - - -
+The number of significant short values is:  6
+Value(s): 
+5.7e-05 1e-05 1.7e-05 0 0 4.4e-05
+Related isoforms: 
+FAM194A.001.short HOMEZ.001.short MAML2.001.short MUC4.003.short MUC6.001.short 
+TAF7L.001.short
+Direction of significance: 
+- - 1 - - -
+
+
+
+# KIRC
+The number of significant long values is:  1
+Value(s): 
+0
+Related isoforms: 
+MUC4.003.long
+Direction of significance: 
+2
+The number of significant short values is:  1
+Value(s): 
+0
+Related isoforms: 
+MUC4.003.short
+Direction of significance: 
+-
+
+
+
+# KIRP
+The number of significant long values is:  0
+Value(s): 
+
+Related isoforms: 
+
+Direction of significance: 
+
+The number of significant short values is:  1
+Value(s): 
+0
+Related isoforms: 
+MAML2.001.short
+Direction of significance: 
+1
+
+
+
+# LGG
+The number of significant long values is:  3
+Value(s): 
+1e-06 0 1.2e-05
+Related isoforms: 
+CIC.001.long TP53.006.long ZNF536.001.long
+Direction of significance: 
+1 1 -
+The number of significant short values is:  2
+Value(s): 
+1e-06 0
+Related isoforms: 
+CIC.001.short TP53.006.short
+Direction of significance: 
+1 1
+
+
+
+# LIHC
+No significant results
+
+
+
+# LUAD
+The number of significant long values is:  1
+Value(s): 
+3e-06
+Related isoforms: 
+SPATA31A3.001.long
+Direction of significance: 
+-
+The number of significant short values is:  3
+Value(s): 
+6e-06 7e-06 0
+Related isoforms: 
+ODF2.009.short PCDHGA9.001.short SPATA31A3.001.short
+Direction of significance: 
+- 1 -
+
+
+
+# LUSC
+The number of significant long values is:  1
+Value(s): 
+0
+Related isoforms: 
+NFE2L2.003.long
+Direction of significance: 
+1
+The number of significant short values is:  0
+Value(s): 
+
+Related isoforms: 
+
+Direction of significance: 
+
+
+
+# OV
+The number of significant long values is:  1
+Value(s): 
+2e-06
+Related isoforms: 
+TP53.006.long
+Direction of significance: 
+1
+The number of significant short values is:  1
+Value(s): 
+0
+Related isoforms: 
+TP53.006.short
+Direction of significance: 
+1
+
+
+
+# PAAD
+No significant results
+
+
+
+# PCPG
+No significant results
+
+
+
+# PRAD
+No significant results
+
+
+
+# SARC
+The number of significant long values is:  2
+Value(s): 
+9e-06 8e-06
+Related isoforms: 
+DOPEY2.001.long ZZZ3.001.long
+Direction of significance: 
+- 1
+The number of significant short values is:  1
+Value(s): 
+1e-06
+Related isoforms: 
+ZZZ3.001.short
+Direction of significance: 
+1
+
+
+
+# SKCM
+The number of significant long values is:  15
+Value(s): 
+0 1.1e-05 2.9e-05 3e-06 0 1e-06 2e-06 3.6e-05 1e-06 0 1.7e-05 2e-05 1e-06 
+1.6e-05 2e-06
+Related isoforms: 
+ACRC.001.long CCDC3.001.long GLCCI1.001.long HNF4A.001.long HS3ST4.001.long 
+IGFN1.001.long L1TD1.001.long LIPE.001.long MUC4.003.long RTL1.001.long 
+SHANK1.001.long SLCO6A1.001.long TCEB3C.001.long TENM4.001.long TNXB.001.long
+Direction of significance: 
+- - 1 - 1 1 - - 1 - 1 - 1 1 -
+The number of significant short values is:  4
+Value(s): 
+0 5e-06 0 0
+Related isoforms: 
+ACRC.001.short EPHA1.001.short RTL1.001.short TNXB.001.short
+Direction of significance: 
+- - - -
+
+
+
+# STES
+The number of significant long values is:  2
+Value(s): 
+4e-06 0
+Related isoforms: 
+KRT86.001.long TP53.006.long
+Direction of significance: 
+1 1
+The number of significant short values is:  1
+Value(s): 
+0
+Related isoforms: 
+TP53.006.short
+Direction of significance: 
+1
+
+
+
+# TGCT
+No significant results
+
+
+
+# THCA
+No significant results
+
+
+
+# THYM
+No significant results
+
+
+
+# UCEC
+No significant results
+
+
+
+# UCS
+No significant results
+
+
+
+# UVM
+No significant results
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
