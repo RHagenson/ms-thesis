@@ -39,7 +39,7 @@ option_list = list(
   make_option(c("-o", "--output"), 
               type="character", 
               default=NULL, 
-              help="Any additional naming scheme for output files (defaults to being 'table_<subset_file>.tsv')", 
+              help="Output location to be prefixed to tables (default table name is 'table_<subset-file>_<term>.tsv')", 
               metavar="character")
 );
 
@@ -69,13 +69,24 @@ if (is.null(opt$background)){
   stop("-b/--background is a required argument.n", call.=FALSE)
 }
 
+# Set default output to current directory
+if (is.null(opt$output)) {
+  opt$output = as.character("./")
+}
+
 # Store CLI arguments in easier-to-use variables
 go_file <- as.character(opt$go)
 ann_file <- as.character(opt$annotation)
 
-subset_files_list <- strsplit(opt$subset, ",")
+subset_files_list <- as.list(strsplit(opt$subset, ",")[[1]])
 
 print(subset_files_list)
+
+out_loc <- if(endsWith(as.character(opt$output), "/")) {
+              as.character(opt$output) 
+            } else {
+              paste0(as.character(opt$output), "/")
+            }
 
 cat("Loading in the background profile from: ", opt$background, "\n")
 background_frame <- read.table(opt$background)
@@ -124,12 +135,15 @@ termCentricAnn <- getTermCentricAnn(annotations=AnnList)
 ###
 
 for(entry in subset_files_list) {
+  cat("Processing: ", entry, "\n")
   # Create the subset list
   subset_frame <- read.table(entry)
-  output_file <- paste0("table_", 
+  output_file <- paste0(out_loc,
+                        "table_", 
                         sub("(.*\\/)([^.]+)(\\.[[:alnum:]]+$)", 
                             "\\2", 
                             entry), 
+                        "_", opt$term,
                         ".tsv")
   
   # Step 7, Perform Hypergeometric test for Enrichment Analysis
