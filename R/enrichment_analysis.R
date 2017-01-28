@@ -89,7 +89,7 @@ out_loc <- if(endsWith(as.character(opt$output), "/")) {
             }
 
 cat("Loading in the background profile from: ", opt$background, "\n")
-background_frame <- read.table(opt$background)
+background_frame <- read.table(opt$background, stringsAsFactors = F)
 
 term <- if(opt$term == "BP") {
     "biological_process"
@@ -137,7 +137,7 @@ termCentricAnn <- getTermCentricAnn(annotations=AnnList)
 for(entry in subset_files_list) {
   cat("Processing: ", entry, "\n")
   # Create the subset list
-  subset_frame <- read.table(entry)
+  subset_frame <- read.table(entry, stringsAsFactors = F)
   output_file <- paste0(out_loc,
                         "table_", 
                         sub("(.*\\/)([^.]+)(\\.[[:alnum:]]+$)", 
