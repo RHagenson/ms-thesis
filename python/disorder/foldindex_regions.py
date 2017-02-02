@@ -3,14 +3,11 @@
 # Name: Ryan Hagenson
 # Email: rhagenson@unomaha.edu
 
-from operator import itemgetter
 import sys
-from distutils.dir_util import mkpath
 from getopt import GetoptError, getopt
 from multiprocessing import Pool, cpu_count
-from os import path, makedirs, listdir, walk
+from os import path, makedirs, listdir
 from os.path import basename
-from re import search, compile
 import urllib2
 import xml.etree.ElementTree as ET
 import csv
@@ -63,7 +60,7 @@ def main():
     # Configure the action of each CLI option
     for (opt, arg) in opts:
         # Reassign fasta_directory
-        if opt in ("-g", "--directory"):
+        if opt in ("-d", "--directory"):
             fasta_directory = str(arg)
 
         # Reassign output_directory
