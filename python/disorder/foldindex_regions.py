@@ -85,46 +85,56 @@ def create_foldindex_file((gene_w_isoform_num, fasta_sequence)):
     """
     global output_directory, foldindex_url
 
-    print("Now processing: ", gene_w_isoform_num)
+    print("Now processing: " + gene_w_isoform_num)
 
-    # Define output file
-    foldindex_file = open(path.join(output_directory,
-                                    gene_w_isoform_num + ".csv"), "w")
-    foldindex_csv = csv.writer(foldindex_file)
+    try:
+        # Append the sequence and submit to server
+        response = urllib2.urlopen(foldindex_url + fasta_sequence)
 
-    # Writer header row to CSV
-    foldindex_csv.writerow(['Start',
-                            'End',
-                            'Length',
-                            'Score',
-                            'STD'])
-
-    # Append the sequence and submit to server
-    response = urllib2.urlopen(foldindex_url + fasta_sequence)
-
-    # Read the server response (XML string)
-    page = response.read()
+        # Read the server response (XML string)
+        page = response.read()
+    except urllib2.HTTPError as err:
+        # Redirect STDERR to STDOUT (ensures screen display)
+        sys.stdout = sys.stderr
+        # Print help information
+        print(str(err))
+        sys.exit(2)
 
     # Parse XML string
     root = ET.fromstring(page)
 
-    for child in root:
-        print(child.tag, child.attrib)
+    # Only process if 'segments' can be found and is not empty
+    if root.find("segments").findall("segment"):
+        print("Segments found")
 
-    for segment in root.find("segments").findall("segment"):
-        start = segment.get('start')
-        end = segment.get('end')
-        length = segment.get('len')
-        score = segment.get('score')
-        std = segment.get('std')
+        # Define output file
+        foldindex_file = open(path.join(output_directory,
+                                        gene_w_isoform_num + ".csv"), "w")
+        foldindex_csv = csv.writer(foldindex_file)
 
-        # Define order of elements to match headers
-        entry = [start, end, length, score, std]
+        # Writer header row to CSV
+        foldindex_csv.writerow(['Start',
+                                'End',
+                                'Length',
+                                'Score',
+                                'STD'])
 
-        # Write entry to file
-        foldindex_csv.writerow(entry)
+        for segment in root.find("segments").findall("segment"):
+            start = segment.get('start')
+            end = segment.get('end')
+            length = segment.get('len')
+            score = segment.get('score')
+            std = segment.get('std')
 
-    foldindex_file.close()
+            # Define order of elements to match headers
+            entry = [start, end, length, score, std]
+
+            # Write entry to file
+            foldindex_csv.writerow(entry)
+
+        foldindex_file.close()
+    else:
+        print("No segments found in: " + gene_w_isoform_num)
 
 
 def generate_pairs(fasta_dir):
@@ -178,8 +188,8 @@ if __name__ == "__main__":
     # Run process in parallel via Pool.map()
     # Create a Pool with a life of 100 tasks each before replacement
     if cpu_count() < 16:
-        # Set processes to size cpu_count(), local workaround
-        pool = Pool(maxtasksperchild=100)
+        # Set processes to size cpu_count()-1, local workaround
+        pool = Pool(maxtasksperchild=100, processes=cpu_count()-1)
     else:
         # Set processes size to 16 directly, remote workaround
         pool = Pool(maxtasksperchild=100, processes=16)
