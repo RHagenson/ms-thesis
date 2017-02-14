@@ -1,5 +1,5 @@
 # ms-thesis
-A repository for all the work done for my MS thesis at the University of Nebraska -- Omaha. Should have at two subtrees: [ms-thesis-Python](https://github.com/RHagenson/ms-thesis-Python) and [ms-thesis-R](https://github.com/RHagenson/ms-thesis-R).
+A repository for all the work done for my MS thesis at the University of Nebraska -- Omaha. Should have at two subtrees: [ms-thesis-Python](https://UNO-rhagenson@bitbucket.org/UNO-rhagenson/ms-thesis-python) and [ms-thesis-R](https://UNO-rhagenson@bitbucket.org/UNO-rhagenson/ms-thesis-r).
 
 # Build Badges
 Python: [![Build Status](https://travis-ci.org/RHagenson/ms-thesis-Python.svg?branch=master)](https://travis-ci.org/RHagenson/ms-thesis-Python)  
