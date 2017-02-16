@@ -14,6 +14,7 @@ knitr::opts_chunk$set(results='asis') # Print results as they are calculated
 ```{r library-load, include=FALSE}
 library(stringr)
 source("../R-defs/isoform_length.R")
+source("../dario/GOUtilities.R")
 ```
 
 ```{r data-load-main, include=FALSE}
@@ -55,11 +56,28 @@ for (i in seq_along(my_data)) {
 my_select_names <- gsub(".select", "", basename(my_select_files))
 ```
 
-```{r data-subsetting, include=FALSE}
-my_select_data <- my_data
+# Summary of P-values (Raw)
+```{r summary_of_pvals_raw}
+tot_num_results <- numeric(length = length(my_data))
+num_pos_results <- numeric(length = length(my_data))
+num_neg_results <- numeric(length = length(my_data))
 
-# Subset to only selected isoforms (found in my_select_lists)
 for (i in seq_along(my_data)) {
+  tot_num_results[i] <- length(my_data[[i]]$PosP)
+  num_pos_results[i] <- sum(my_data[[i]]$PosP < my_data[[i]]$NegP, na.rm = T)
+  num_neg_results[i] <- sum(my_data[[i]]$PosP > my_data[[i]]$NegP, na.rm = T)
+}
+
+knitr::kable(data.frame(row.names=my_names, 
+                        Total_Results=tot_num_results, 
+                        Positive_Results=num_pos_results, 
+                        Negative_Results=num_neg_results))
+```
+
+```{r data-subsetting, include=FALSE}
+select_data <- my_data
+# Subset to only selected isoforms (found in my_select_lists)
+for (i in seq_along(select_data)) {
   # Determine appropriate my_select_name (read inside out)
   sname <- gsub("_missense", # Remove trailing '_missense' on some
                 "", 
@@ -69,29 +87,65 @@ for (i in seq_along(my_data)) {
                             ".", 
                             my_names[i])))))
   
-  sname_pos <- sname == my_select_names
+  sname_pos <- match(sname, my_select_names)
   
-  # Read in selected name file, subsetting my_data[i] with entries there
-  my_select_data[[i]] <- my_data[[i]]$Isoform == my_select_lists[sname_pos]
+  # Read in selected name file, subsetting select_data[i] with entries there
+  select_data[[i]] <- select_data[[i]][match(my_select_lists[[sname_pos]], select_data[[i]]$Isoform),]
 }
 ```
 
+# Summary of P-values (Select)
+```{r summary_of_pvals_select}
+stot_num_results <- numeric(length = length(select_data))
+snum_pos_results <- numeric(length = length(select_data))
+snum_neg_results <- numeric(length = length(select_data))
+reduction <- numeric(length = length(select_data))
 
-# Summary of P-vals
-```{r summary_of_pvals}
-tot_num_results <- vector(length = length(my_data))
-num_pos_results <- vector(length = length(my_data))
-num_neg_results <- vector(length = length(my_data))
-
-for (i in seq_along(my_data)) {
-  tot_num_results[i] <- length(my_data[[i]]$PosP)
-  num_pos_results[i] <- sum(my_data[[i]]$PosP < my_data[[i]]$NegP)
-  num_neg_results[i] <- sum(my_data[[i]]$PosP < my_data[[i]]$NegP)
+for (i in seq_along(select_data)) {
+  stot_num_results[i] <- length(select_data[[i]]$PosP)
+  snum_pos_results[i] <- sum(select_data[[i]]$PosP < select_data[[i]]$NegP, na.rm = T)
+  snum_neg_results[i] <- sum(select_data[[i]]$PosP > select_data[[i]]$NegP, na.rm = T)
+  reduction[i] <- sum(length(my_data[[i]]$Isoform) - length(select_data[[i]]$Isoform))
 }
 
-knitr::kable(data.frame(Source=my_names, 
-                        Total_Results=tot_num_results, 
-                        Positive_Results=num_pos_results, 
-                        Negative_Results=num_neg_results))
+knitr::kable(data.frame(row.names=my_names, 
+                        Reduction=reduction,
+                        Total_Results=stot_num_results,
+                        Positive_Results=snum_pos_results, 
+                        Negative_Results=snum_neg_results))
 ```
+
+# P-adjustments (FDR correction)
+```{r fdr-correct, include=FALSE}
+# Bind new columns
+for (i in seq_along(select_data)) {
+  select_data[[i]]$PAdj <- 0
+  select_data[[i]]$PosCall <- 0
+}
+
+for (i in seq_along(select_data)) {
+  select_data[[i]]$PosCall <- select_data[[i]]$PosP < select_data[[i]]$NegP
+}
+
+for (i in seq_along(select_data)) {
+  # Positive adjustement
+  select_data[[i]]$Padj[select_data[[i]]$PosCall] <- p.adjust(select_data[[i]]$PosP[select_data[[i]]$PosCall], 
+                                                              method="fdr")
+  
+  # Negative adjustment
+  select_data[[i]]$Padj[!select_data[[i]]$PosCall] <- p.adjust(select_data[[i]]$NegP[!select_data[[i]]$PosCall], 
+                                                               method="fdr")
+}
+
+knitr::kable(PAdj=select_data[[i]]$Padj,
+             PosCall=select_data[[i]]$PosCall)
+```
+
+
+# Enrichment analysis
+```{r create-profiles, include=FALSE}
+
+```
+
+
 
