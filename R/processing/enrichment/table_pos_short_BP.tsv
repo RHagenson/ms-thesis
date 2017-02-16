@@ -1,0 +1,7 @@
+GO:0030277	maintenance of gastrointestinal epithelium	0.0234	MUC4,MUC6
+GO:0010669	epithelial structure maintenance	0.0234	MUC4,MUC6
+GO:0051496	positive regulation of stress fiber assembly	0.0466	PPM1E,EPHA1
+GO:0022600	digestive system process	0.0466	MUC4,MUC6
+GO:0036003	positive regulation of transcription from RNA polymerase II promoter in response to stress	0.0466	NFE2L2,TP53
+GO:0006984	ER-nucleus signaling pathway	0.0466	TP53,NFE2L2
+GO:0035690	cellular response to drug	0.0466	PPM1E,TP53

@@ -1,0 +1,63 @@
+GO:0043170	macromolecule metabolic process	0.0444	NUMBL,ATXN1,TP53,MAML2,UBXN11,PTPN18
+GO:0071704	organic substance metabolic process	0.0444	NUMBL,ATXN1,TP53,MAML2,UBXN11,PTPN18
+GO:0008152	metabolic process	0.0444	NUMBL,ATXN1,TP53,PTPN18,UBXN11,MAML2
+GO:0044238	primary metabolic process	0.0444	NUMBL,ATXN1,TP53,PTPN18,UBXN11,MAML2
+GO:0021849	neuroblast division in subventricular zone	0.0444	NUMBL
+GO:0000733	DNA strand renaturation	0.0444	TP53
+GO:0008340	determination of adult lifespan	0.0444	TP53
+GO:0051097	negative regulation of helicase activity	0.0444	TP53
+GO:0070245	positive regulation of thymocyte apoptotic process	0.0444	TP53
+GO:0097252	oligodendrocyte apoptotic process	0.0444	TP53
+GO:0034349	glial cell apoptotic process	0.0444	TP53
+GO:0044260	cellular macromolecule metabolic process	0.0456	ATXN1,TP53,PTPN18,MAML2,UBXN11
+GO:0007221	positive regulation of transcription of Notch receptor target	0.0456	MAML2
+GO:0021670	lateral ventricle development	0.0456	NUMBL
+GO:0021591	ventricular system development	0.0456	NUMBL
+GO:0021846	cell proliferation in forebrain	0.0456	NUMBL
+GO:0021873	forebrain neuroblast division	0.0456	NUMBL
+GO:0055057	neuroblast division	0.0456	NUMBL
+GO:0036445	neuronal stem cell division	0.0456	NUMBL
+GO:0048103	somatic stem cell division	0.0456	NUMBL
+GO:0006978	DNA damage response, signal transduction by p53 class mediator resulting in transcription of p21 class mediator	0.0456	TP53
+GO:0006983	ER overload response	0.0456	TP53
+GO:0010259	multicellular organism aging	0.0456	TP53
+GO:0031065	positive regulation of histone deacetylation	0.0456	TP53
+GO:0043161	proteasome-mediated ubiquitin-dependent protein catabolic process	0.0456	UBXN11,TP53
+GO:0010498	proteasomal protein catabolic process	0.0456	UBXN11,TP53
+GO:0048512	circadian behavior	0.0456	TP53
+GO:0007622	rhythmic behavior	0.0456	TP53
+GO:0051095	regulation of helicase activity	0.0456	TP53
+GO:0051974	negative regulation of telomerase activity	0.0456	TP53
+GO:0070234	positive regulation of T cell apoptotic process	0.0456	TP53
+GO:0070243	regulation of thymocyte apoptotic process	0.0456	TP53
+GO:0070230	positive regulation of lymphocyte apoptotic process	0.0456	TP53
+GO:0090399	replicative senescence	0.0456	TP53
+GO:0090403	oxidative stress-induced premature senescence	0.0456	TP53
+GO:0090400	stress-induced premature senescence	0.0456	TP53
+GO:1900119	positive regulation of execution phase of apoptosis	0.0456	TP53
+GO:1990440	positive regulation of transcription from RNA polymerase II promoter in response to endoplasmic reticulum stress	0.0456	TP53
+GO:0042772	DNA damage response, signal transduction resulting in transcription	0.046	TP53
+GO:0090312	positive regulation of protein deacetylation	0.046	TP53
+GO:0046827	positive regulation of protein export from nucleus	0.046	TP53
+GO:0007405	neuroblast proliferation	0.0479	NUMBL
+GO:0017145	stem cell division	0.0479	NUMBL
+GO:0010165	response to X-ray	0.0479	TP53
+GO:0031063	regulation of histone deacetylation	0.0479	TP53
+GO:0046677	response to antibiotic	0.0479	TP53
+GO:0019538	protein metabolic process	0.0496	NUMBL,PTPN18,UBXN11,TP53
+GO:0010332	response to gamma radiation	0.0496	TP53
+GO:0032461	positive regulation of protein oligomerization	0.0496	TP53
+GO:0042771	intrinsic apoptotic signaling pathway in response to DNA damage by p53 class mediator	0.0496	TP53
+GO:0043153	entrainment of circadian clock by photoperiod	0.0496	TP53
+GO:0009648	photoperiodism	0.0496	TP53
+GO:0043525	positive regulation of neuron apoptotic process	0.0496	TP53
+GO:0048147	negative regulation of fibroblast proliferation	0.0496	TP53
+GO:0070232	regulation of T cell apoptotic process	0.0496	TP53
+GO:2000108	positive regulation of leukocyte apoptotic process	0.0496	TP53
+GO:1900117	regulation of execution phase of apoptosis	0.0496	TP53
+GO:0021872	forebrain generation of neurons	0.05	NUMBL
+GO:0090311	regulation of protein deacetylation	0.05	TP53
+GO:0009649	entrainment of circadian clock	0.05	TP53
+GO:0006511	ubiquitin-dependent protein catabolic process	0.05	UBXN11,TP53
+GO:0019941	modification-dependent protein catabolic process	0.05	UBXN11,TP53
+GO:0043632	modification-dependent macromolecule catabolic process	0.05	UBXN11,TP53

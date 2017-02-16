@@ -1,0 +1,25 @@
+GO:0030277	maintenance of gastrointestinal epithelium	0.000555	MUC4,MUC6
+GO:0010669	epithelial structure maintenance	0.000555	MUC4,MUC6
+GO:0022600	digestive system process	0.0026	MUC4,MUC6
+GO:0016266	O-glycan processing	0.00576	MUC4,MUC6
+GO:0006493	protein O-linked glycosylation	0.00867	MUC4,MUC6
+GO:0007586	digestion	0.00867	MUC4,MUC6
+GO:0001894	tissue homeostasis	0.00867	MUC4,MUC6
+GO:0034645	cellular macromolecule biosynthetic process	0.0133	MAML2,TAF7L,MUC4,MUC6
+GO:0009059	macromolecule biosynthetic process	0.0148	MAML2,TAF7L,MUC4,MUC6
+GO:0006367	transcription initiation from RNA polymerase II promoter	0.0158	MAML2,TAF7L
+GO:0048871	multicellular organismal homeostasis	0.0165	MUC4,MUC6
+GO:0006352	DNA-templated transcription, initiation	0.0169	MAML2,TAF7L
+GO:0007221	positive regulation of transcription of Notch receptor target	0.0169	MAML2
+GO:0006486	protein glycosylation	0.0169	MUC4,MUC6
+GO:0043413	macromolecule glycosylation	0.0169	MUC4,MUC6
+GO:0070085	glycosylation	0.0169	MUC4,MUC6
+GO:0060249	anatomical structure homeostasis	0.0169	MUC4,MUC6
+GO:0051123	RNA polymerase II transcriptional preinitiation complex assembly	0.0199	TAF7L
+GO:0009101	glycoprotein biosynthetic process	0.0211	MUC4,MUC6
+GO:0070897	DNA-templated transcriptional preinitiation complex assembly	0.0211	TAF7L
+GO:0009100	glycoprotein metabolic process	0.0237	MUC4,MUC6
+GO:0044249	cellular biosynthetic process	0.0264	MAML2,TAF7L,MUC4,MUC6
+GO:1901576	organic substance biosynthetic process	0.0295	MAML2,TAF7L,MUC4,MUC6
+GO:0009058	biosynthetic process	0.0311	MAML2,TAF7L,MUC4,MUC6
+GO:0006357	regulation of transcription from RNA polymerase II promoter	0.0494	TAF7L,HOMEZ,MAML2

@@ -1,0 +1,252 @@
+GO:0036003	positive regulation of transcription from RNA polymerase II promoter in response to stress	0.00168	NFE2L2,TP53
+GO:0006984	ER-nucleus signaling pathway	0.00168	TP53,NFE2L2
+GO:0043618	regulation of transcription from RNA polymerase II promoter in response to stress	0.00405	NFE2L2,TP53
+GO:0043620	regulation of DNA-templated transcription in response to stress	0.00405	NFE2L2,TP53
+GO:0034599	cellular response to oxidative stress	0.00789	NFE2L2,TP53
+GO:2001242	regulation of intrinsic apoptotic signaling pathway	0.00789	TP53,NFE2L2
+GO:0034976	response to endoplasmic reticulum stress	0.0158	TP53,NFE2L2
+GO:0006979	response to oxidative stress	0.0158	NFE2L2,TP53
+GO:0000733	DNA strand renaturation	0.0158	TP53
+GO:0097252	oligodendrocyte apoptotic process	0.0158	TP53
+GO:0034349	glial cell apoptotic process	0.0158	TP53
+GO:0008340	determination of adult lifespan	0.0173	TP53
+GO:0051097	negative regulation of helicase activity	0.0173	TP53
+GO:0070245	positive regulation of thymocyte apoptotic process	0.0173	TP53
+GO:0010499	proteasomal ubiquitin-independent protein catabolic process	0.0174	NFE2L2
+GO:0010498	proteasomal protein catabolic process	0.0174	NFE2L2,TP53
+GO:0043161	proteasome-mediated ubiquitin-dependent protein catabolic process	0.0174	TP53,NFE2L2
+GO:2001233	regulation of apoptotic signaling pathway	0.0174	TP53,NFE2L2
+GO:0090403	oxidative stress-induced premature senescence	0.0174	TP53
+GO:0010259	multicellular organism aging	0.0192	TP53
+GO:0070243	regulation of thymocyte apoptotic process	0.0192	TP53
+GO:0051603	proteolysis involved in cellular protein catabolic process	0.0194	NFE2L2,TP53
+GO:0030163	protein catabolic process	0.0194	NFE2L2,TP53
+GO:0044257	cellular protein catabolic process	0.0194	NFE2L2,TP53
+GO:0036499	PERK-mediated unfolded protein response	0.0194	NFE2L2
+GO:0006511	ubiquitin-dependent protein catabolic process	0.0194	TP53,NFE2L2
+GO:0019941	modification-dependent protein catabolic process	0.0194	TP53,NFE2L2
+GO:0043632	modification-dependent macromolecule catabolic process	0.0194	TP53,NFE2L2
+GO:0071498	cellular response to fluid shear stress	0.0194	NFE2L2
+GO:0071499	cellular response to laminar fluid shear stress	0.0194	NFE2L2
+GO:0034616	response to laminar fluid shear stress	0.0194	NFE2L2
+GO:1903071	positive regulation of ER-associated ubiquitin-dependent protein catabolic process	0.0194	NFE2L2
+GO:1903069	regulation of ER-associated ubiquitin-dependent protein catabolic process	0.0194	NFE2L2
+GO:1904294	positive regulation of ERAD pathway	0.0194	NFE2L2
+GO:0006978	DNA damage response, signal transduction by p53 class mediator resulting in transcription of p21 class mediator	0.0194	TP53
+GO:0042772	DNA damage response, signal transduction resulting in transcription	0.0194	TP53
+GO:0006983	ER overload response	0.0194	TP53
+GO:0031065	positive regulation of histone deacetylation	0.0194	TP53
+GO:0090312	positive regulation of protein deacetylation	0.0194	TP53
+GO:0046827	positive regulation of protein export from nucleus	0.0194	TP53
+GO:0048512	circadian behavior	0.0194	TP53
+GO:0007622	rhythmic behavior	0.0194	TP53
+GO:0051095	regulation of helicase activity	0.0194	TP53
+GO:0051974	negative regulation of telomerase activity	0.0194	TP53
+GO:0070234	positive regulation of T cell apoptotic process	0.0194	TP53
+GO:0070230	positive regulation of lymphocyte apoptotic process	0.0194	TP53
+GO:0090399	replicative senescence	0.0194	TP53
+GO:0090400	stress-induced premature senescence	0.0194	TP53
+GO:1900119	positive regulation of execution phase of apoptosis	0.0194	TP53
+GO:1990440	positive regulation of transcription from RNA polymerase II promoter in response to endoplasmic reticulum stress	0.0194	TP53
+GO:0043066	negative regulation of apoptotic process	0.0198	TP53,NFE2L2
+GO:0043069	negative regulation of programmed cell death	0.0198	TP53,NFE2L2
+GO:1903206	negative regulation of hydrogen peroxide-induced cell death	0.0198	NFE2L2
+GO:1901032	negative regulation of response to reactive oxygen species	0.0198	NFE2L2
+GO:0010165	response to X-ray	0.0198	TP53
+GO:0031063	regulation of histone deacetylation	0.0198	TP53
+GO:0046677	response to antibiotic	0.0198	TP53
+GO:0032446	protein modification by small protein conjugation	0.0202	NFE2L2,TP53
+GO:1903205	regulation of hydrogen peroxide-induced cell death	0.0202	NFE2L2
+GO:0048147	negative regulation of fibroblast proliferation	0.0202	TP53
+GO:0060548	negative regulation of cell death	0.0207	TP53,NFE2L2
+GO:0010332	response to gamma radiation	0.0207	TP53
+GO:0032461	positive regulation of protein oligomerization	0.0207	TP53
+GO:0042771	intrinsic apoptotic signaling pathway in response to DNA damage by p53 class mediator	0.0207	TP53
+GO:0043153	entrainment of circadian clock by photoperiod	0.0207	TP53
+GO:0009648	photoperiodism	0.0207	TP53
+GO:0043525	positive regulation of neuron apoptotic process	0.0207	TP53
+GO:0070232	regulation of T cell apoptotic process	0.0207	TP53
+GO:2000108	positive regulation of leukocyte apoptotic process	0.0207	TP53
+GO:1900117	regulation of execution phase of apoptosis	0.0207	TP53
+GO:0034405	response to fluid shear stress	0.0213	NFE2L2
+GO:1902176	negative regulation of oxidative stress-induced intrinsic apoptotic signaling pathway	0.0213	NFE2L2
+GO:2000352	negative regulation of endothelial cell apoptotic process	0.0215	NFE2L2
+GO:0090311	regulation of protein deacetylation	0.0215	TP53
+GO:0009649	entrainment of circadian clock	0.0215	TP53
+GO:0070647	protein modification by small protein conjugation or removal	0.0219	NFE2L2,TP53
+GO:1901031	regulation of response to reactive oxygen species	0.022	NFE2L2
+GO:0046825	regulation of protein export from nucleus	0.0225	TP53
+GO:2000279	negative regulation of DNA biosynthetic process	0.0225	TP53
+GO:0044265	cellular macromolecule catabolic process	0.0233	NFE2L2,TP53
+GO:1904036	negative regulation of epithelial cell apoptotic process	0.0233	NFE2L2
+GO:0042149	cellular response to glucose starvation	0.0233	TP53
+GO:0090200	positive regulation of release of cytochrome c from mitochondria	0.0233	TP53
+GO:0045944	positive regulation of transcription from RNA polymerase II promoter	0.0234	TP53,NFE2L2
+GO:0070301	cellular response to hydrogen peroxide	0.0234	NFE2L2
+GO:1904292	regulation of ERAD pathway	0.0234	NFE2L2
+GO:1902175	regulation of oxidative stress-induced intrinsic apoptotic signaling pathway	0.0236	NFE2L2
+GO:0032459	regulation of protein oligomerization	0.0236	TP53
+GO:0090398	cellular senescence	0.0236	TP53
+GO:1901216	positive regulation of neuron death	0.0242	TP53
+GO:0006508	proteolysis	0.0244	NFE2L2,TP53
+GO:1903202	negative regulation of oxidative stress-induced cell death	0.0244	NFE2L2
+GO:1900408	negative regulation of cellular response to oxidative stress	0.0244	NFE2L2
+GO:1902883	negative regulation of response to oxidative stress	0.0244	NFE2L2
+GO:2000351	regulation of endothelial cell apoptotic process	0.0244	NFE2L2
+GO:0035690	cellular response to drug	0.0244	TP53
+GO:0070228	regulation of lymphocyte apoptotic process	0.0244	TP53
+GO:1900740	positive regulation of protein insertion into mitochondrial membrane involved in apoptotic signaling pathway	0.0244	TP53
+GO:1900739	regulation of protein insertion into mitochondrial membrane involved in apoptotic signaling pathway	0.0244	TP53
+GO:0009057	macromolecule catabolic process	0.0259	NFE2L2,TP53
+GO:0006284	base-excision repair	0.0263	TP53
+GO:2001244	positive regulation of intrinsic apoptotic signaling pathway	0.0269	TP53
+GO:0072332	intrinsic apoptotic signaling pathway by p53 class mediator	0.0271	TP53
+GO:1901030	positive regulation of mitochondrial outer membrane permeabilization involved in apoptotic signaling pathway	0.0271	TP53
+GO:0042542	response to hydrogen peroxide	0.0274	NFE2L2
+GO:0090199	regulation of release of cytochrome c from mitochondria	0.0274	TP53
+GO:0051972	regulation of telomerase activity	0.0279	TP53
+GO:0071479	cellular response to ionizing radiation	0.0284	TP53
+GO:0007569	cell aging	0.0288	TP53
+GO:1903201	regulation of oxidative stress-induced cell death	0.029	NFE2L2
+GO:1904035	regulation of epithelial cell apoptotic process	0.029	NFE2L2
+GO:1902749	regulation of cell cycle G2/M phase transition	0.0295	TP53
+GO:0048145	regulation of fibroblast proliferation	0.0297	TP53
+GO:1901028	regulation of mitochondrial outer membrane permeabilization involved in apoptotic signaling pathway	0.0297	TP53
+GO:0032392	DNA geometric change	0.0301	TP53
+GO:0008630	intrinsic apoptotic signaling pathway in response to DNA damage	0.0303	TP53
+GO:2000106	regulation of leukocyte apoptotic process	0.0303	TP53
+GO:0042981	regulation of apoptotic process	0.0309	TP53,NFE2L2
+GO:1900407	regulation of cellular response to oxidative stress	0.0309	NFE2L2
+GO:0043067	regulation of programmed cell death	0.0309	TP53,NFE2L2
+GO:1902882	regulation of response to oxidative stress	0.0313	NFE2L2
+GO:0045893	positive regulation of transcription, DNA-templated	0.032	TP53,NFE2L2
+GO:1903508	positive regulation of nucleic acid-templated transcription	0.032	TP53,NFE2L2
+GO:1902680	positive regulation of RNA biosynthetic process	0.0329	TP53,NFE2L2
+GO:0051254	positive regulation of RNA metabolic process	0.0329	TP53,NFE2L2
+GO:0034614	cellular response to reactive oxygen species	0.0329	NFE2L2
+GO:0010941	regulation of cell death	0.0329	TP53,NFE2L2
+GO:0006977	DNA damage response, signal transduction by p53 class mediator resulting in cell cycle arrest	0.0329	TP53
+GO:0072431	signal transduction involved in mitotic G1 DNA damage checkpoint	0.0329	TP53
+GO:1902402	signal transduction involved in mitotic DNA damage checkpoint	0.0329	TP53
+GO:1902400	intracellular signal transduction involved in G1 DNA damage checkpoint	0.0329	TP53
+GO:1902403	signal transduction involved in mitotic DNA integrity checkpoint	0.0329	TP53
+GO:0072413	signal transduction involved in mitotic cell cycle checkpoint	0.0329	TP53
+GO:0031058	positive regulation of histone modification	0.0329	TP53
+GO:0034644	cellular response to UV	0.0329	TP53
+GO:0046902	regulation of mitochondrial membrane permeability	0.0329	TP53
+GO:2000379	positive regulation of reactive oxygen species metabolic process	0.0329	TP53
+GO:0032436	positive regulation of proteasomal ubiquitin-dependent protein catabolic process	0.0331	NFE2L2
+GO:0072422	signal transduction involved in DNA damage checkpoint	0.0331	TP53
+GO:0072401	signal transduction involved in DNA integrity checkpoint	0.0331	TP53
+GO:0007568	aging	0.0331	TP53
+GO:0072395	signal transduction involved in cell cycle checkpoint	0.0332	TP53
+GO:0090559	regulation of membrane permeability	0.0332	TP53
+GO:0032270	positive regulation of cellular protein metabolic process	0.0333	TP53,NFE2L2
+GO:1905269	positive regulation of chromatin organization	0.0333	TP53
+GO:0044248	cellular catabolic process	0.0338	NFE2L2,TP53
+GO:0033554	cellular response to stress	0.0338	TP53,NFE2L2
+GO:1901800	positive regulation of proteasomal protein catabolic process	0.0338	NFE2L2
+GO:0031571	mitotic G1 DNA damage checkpoint	0.0338	TP53
+GO:0044819	mitotic G1/S transition checkpoint	0.0338	TP53
+GO:0044783	G1 DNA damage checkpoint	0.0341	TP53
+GO:2001243	negative regulation of intrinsic apoptotic signaling pathway	0.0344	NFE2L2
+GO:0051247	positive regulation of protein metabolic process	0.035	NFE2L2,TP53
+GO:2000278	regulation of DNA biosynthetic process	0.035	TP53
+GO:0010557	positive regulation of macromolecule biosynthetic process	0.036	TP53,NFE2L2
+GO:0010628	positive regulation of gene expression	0.0364	TP53,NFE2L2
+GO:0045935	positive regulation of nucleobase-containing compound metabolic process	0.0364	TP53,NFE2L2
+GO:0030330	DNA damage response, signal transduction by p53 class mediator	0.0364	TP53
+GO:0071158	positive regulation of cell cycle arrest	0.0364	TP53
+GO:0071482	cellular response to light stimulus	0.0364	TP53
+GO:0009267	cellular response to starvation	0.0364	TP53
+GO:0042752	regulation of circadian rhythm	0.0364	TP53
+GO:0051262	protein tetramerization	0.0364	TP53
+GO:1905477	positive regulation of protein localization to membrane	0.0364	TP53
+GO:1901575	organic substance catabolic process	0.0369	NFE2L2,TP53
+GO:0006357	regulation of transcription from RNA polymerase II promoter	0.0369	TP53,NFE2L2
+GO:0031328	positive regulation of cellular biosynthetic process	0.0369	TP53,NFE2L2
+GO:0009891	positive regulation of biosynthetic process	0.0369	TP53,NFE2L2
+GO:0051173	positive regulation of nitrogen compound metabolic process	0.0369	TP53,NFE2L2
+GO:0032434	regulation of proteasomal ubiquitin-dependent protein catabolic process	0.0369	NFE2L2
+GO:2000134	negative regulation of G1/S transition of mitotic cell cycle	0.0369	TP53
+GO:0044773	mitotic DNA damage checkpoint	0.0369	TP53
+GO:1902807	negative regulation of cell cycle G1/S phase transition	0.0369	TP53
+GO:0071216	cellular response to biotic stimulus	0.0369	TP53
+GO:0010212	response to ionizing radiation	0.0369	TP53
+GO:0031056	regulation of histone modification	0.0369	TP53
+GO:0031497	chromatin assembly	0.0369	TP53
+GO:0042594	response to starvation	0.0369	TP53
+GO:0046824	positive regulation of nucleocytoplasmic transport	0.0369	TP53
+GO:0007006	mitochondrial membrane organization	0.0369	TP53
+GO:0007623	circadian rhythm	0.0369	TP53
+GO:0071456	cellular response to hypoxia	0.0369	TP53
+GO:0036294	cellular response to decreased oxygen levels	0.0369	TP53
+GO:0042770	signal transduction in response to DNA damage	0.0371	TP53
+GO:0009056	catabolic process	0.0374	NFE2L2,TP53
+GO:0051053	negative regulation of DNA metabolic process	0.0376	TP53
+GO:0071453	cellular response to oxygen levels	0.0378	TP53
+GO:0000302	response to reactive oxygen species	0.0378	NFE2L2
+GO:0043523	regulation of neuron apoptotic process	0.0378	TP53
+GO:1902531	regulation of intracellular signal transduction	0.0385	TP53,NFE2L2
+GO:0044774	mitotic DNA integrity checkpoint	0.0385	TP53
+GO:0031669	cellular response to nutrient levels	0.0385	TP53
+GO:0030968	endoplasmic reticulum unfolded protein response	0.0385	NFE2L2
+GO:0071156	regulation of cell cycle arrest	0.0385	TP53
+GO:0034620	cellular response to unfolded protein	0.0396	NFE2L2
+GO:0009411	response to UV	0.0396	TP53
+GO:2000377	regulation of reactive oxygen species metabolic process	0.0396	TP53
+GO:0031668	cellular response to extracellular stimulus	0.0402	TP53
+GO:0048584	positive regulation of response to stimulus	0.0403	NFE2L2,TP53
+GO:0061136	regulation of proteasomal protein catabolic process	0.0403	NFE2L2
+GO:0006289	nucleotide-excision repair	0.0403	TP53
+GO:0072331	signal transduction by p53 class mediator	0.0403	TP53
+GO:1902275	regulation of chromatin organization	0.0403	TP53
+GO:0006333	chromatin assembly or disassembly	0.0403	TP53
+GO:0071478	cellular response to radiation	0.0403	TP53
+GO:0097193	intrinsic apoptotic signaling pathway	0.0403	TP53
+GO:1905475	regulation of protein localization to membrane	0.0403	TP53
+GO:1903749	positive regulation of establishment of protein localization to mitochondrion	0.0405	TP53
+GO:2000045	regulation of G1/S transition of mitotic cell cycle	0.0407	TP53
+GO:0016925	protein sumoylation	0.0407	TP53
+GO:0048511	rhythmic process	0.0407	TP53
+GO:0007265	Ras protein signal transduction	0.0413	TP53
+GO:0050731	positive regulation of peptidyl-tyrosine phosphorylation	0.0415	TP53
+GO:0035967	cellular response to topologically incorrect protein	0.0416	NFE2L2
+GO:1901991	negative regulation of mitotic cell cycle phase transition	0.0416	TP53
+GO:0007050	cell cycle arrest	0.0416	TP53
+GO:0006323	DNA packaging	0.0416	TP53
+GO:0042493	response to drug	0.0416	TP53
+GO:1903747	regulation of establishment of protein localization to mitochondrion	0.0418	TP53
+GO:1902806	regulation of cell cycle G1/S phase transition	0.0419	TP53
+GO:2001252	positive regulation of chromosome organization	0.0419	TP53
+GO:2001235	positive regulation of apoptotic signaling pathway	0.0419	TP53
+GO:1901988	negative regulation of cell cycle phase transition	0.0423	TP53
+GO:0030308	negative regulation of cell growth	0.0423	TP53
+GO:0006986	response to unfolded protein	0.0431	NFE2L2
+GO:0000077	DNA damage checkpoint	0.044	TP53
+GO:0007093	mitotic cell cycle checkpoint	0.0443	TP53
+GO:1901214	regulation of neuron death	0.0443	TP53
+GO:0001666	response to hypoxia	0.0466	TP53
+GO:0070887	cellular response to chemical stimulus	0.0466	NFE2L2,TP53
+GO:0031570	DNA integrity checkpoint	0.0466	TP53
+GO:2001234	negative regulation of apoptotic signaling pathway	0.0467	NFE2L2
+GO:0036293	response to decreased oxygen levels	0.0468	TP53
+GO:0031667	response to nutrient levels	0.0469	TP53
+GO:0035966	response to topologically incorrect protein	0.0473	NFE2L2
+GO:0007264	small GTPase mediated signal transduction	0.0473	TP53
+GO:0070482	response to oxygen levels	0.0473	TP53
+GO:0032268	regulation of cellular protein metabolic process	0.0474	TP53,NFE2L2
+GO:0071496	cellular response to external stimulus	0.0474	TP53
+GO:1903052	positive regulation of proteolysis involved in cellular protein catabolic process	0.0481	NFE2L2
+GO:0045926	negative regulation of growth	0.0481	TP53
+GO:0031334	positive regulation of protein complex assembly	0.0481	TP53
+GO:0009991	response to extracellular stimulus	0.0481	TP53
+GO:0010822	positive regulation of mitochondrion organization	0.0481	TP53
+GO:1901796	regulation of signal transduction by p53 class mediator	0.0481	TP53
+GO:0046822	regulation of nucleocytoplasmic transport	0.0488	TP53
+GO:0006839	mitochondrial transport	0.0488	TP53
+GO:0050730	regulation of peptidyl-tyrosine phosphorylation	0.0488	TP53
+GO:0007610	behavior	0.0489	TP53
+GO:0090304	nucleic acid metabolic process	0.0496	TP53,NFE2L2
+GO:1903364	positive regulation of cellular protein catabolic process	0.0496	NFE2L2
+GO:0071103	DNA conformation change	0.0496	TP53

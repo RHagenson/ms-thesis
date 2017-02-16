@@ -16,7 +16,7 @@ library(stringr)
 source("../R-defs/isoform_length.R")
 ```
 
-```{r data-load, include=FALSE}
+```{r data-load-main, include=FALSE}
 # Collect all files
 my_files <- list.files(path="../../../disorderCancer/data/results_MCDisorder/", 
                        pattern="*.pvals",
@@ -26,7 +26,20 @@ my_files <- list.files(path="../../../disorderCancer/data/results_MCDisorder/",
 my_data <- lapply(my_files, read.delim, stringsAsFactors = F, header=F)
 ```
 
-```{r data-naming, include=FALSE}
+```{r data-load-select, include=FALSE}
+# Collect all files
+my_select_files <- list.files(path="../processing/selectedIsoforms/",
+                              pattern="*.select",
+                              full.names=T)
+
+my_select_lists <- lapply(my_select_files, 
+                          scan,
+                          what="c")
+
+```
+
+
+```{r data-naming-main, include=FALSE}
 # Names items in list to truncated version of file name via stringr
 my_names <- str_replace(basename(my_files), pattern = ".pvals", replacement = "")
 #names(my_data) <- my_names
@@ -38,34 +51,28 @@ for (i in seq_along(my_data)) {
 }
 ```
 
+```{r data-naming-select, include=FALSE}
+my_select_names <- gsub(".select", "", basename(my_select_files))
+```
+
 ```{r data-subsetting, include=FALSE}
-# Subset to only selected isoforms
+my_select_data <- my_data
+
+# Subset to only selected isoforms (found in my_select_lists)
 for (i in seq_along(my_data)) {
-  ### Read in each line of data.frame and determine these additional values:
-  ### isoform_length AND number_of_mutations 
-  # Determine the unique isoform codes by removing isoform number
-  unique_entries <- unique(stringr::str_replace(my_data[[i]]$Isoform, 
-                                         pattern=".[:digit:]{3}", 
-                                         replacement=""))
+  # Determine appropriate my_select_name (read inside out)
+  sname <- gsub("_missense", # Remove trailing '_missense' on some
+                "", 
+                (gsub("_mut_", # Condense into CANCER.LONG|SHORT
+                      ".", 
+                      (gsub("_mut_missense_", # Condense into CANCER.LONG|SHORT
+                            ".", 
+                            my_names[i])))))
   
-  select_frame <- data.frame(Isoform=character(length = length(unique_entries)),
-                             PosP=numeric(length = length(unique_entries)),
-                             NegP=numeric(length = length(unique_entries))
-                             )
+  sname_pos <- sname == my_select_names
   
-  temp_frame <- data.frame(Isoform=character(length = length(unique_entries)),
-                           PosP=numeric(length = length(unique_entries)),
-                           NegP=numeric(length = length(unique_entries)),
-                           Length=numeric(length = length(unique_entries)),
-                           NumMuts=numeric(length = length(unique_entries))
-                           )
-  
-  
-  
-  # Order the new data_frame and output only the "top" isoform
-  
-  SELECT_ROW <- longDataFrame[with(longDataFrame,
-                                         order(-numMuts, isoLength, isoName)),][1,]
+  # Read in selected name file, subsetting my_data[i] with entries there
+  my_select_data[[i]] <- my_data[[i]]$Isoform == my_select_lists[sname_pos]
 }
 ```
 
