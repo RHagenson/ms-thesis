@@ -1,0 +1,90 @@
+---
+title: "Positional Results"
+author: "Ryan Hagenson"
+date: "February 15, 2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE)  # Allow quick iteration by caching long computations
+knitr::opts_chunk$set(results='asis') # Print results as they are calculated
+```
+
+
+```{r library-load, include=FALSE}
+library(stringr)
+source("../R-defs/isoform_length.R")
+```
+
+```{r data-load, include=FALSE}
+# Collect all files
+my_files <- list.files(path="../../../disorderCancer/data/results_MCDisorder/", 
+                       pattern="*.pvals",
+                       full.names = T)
+
+# Read files into list
+my_data <- lapply(my_files, read.delim, stringsAsFactors = F, header=F)
+```
+
+```{r data-naming, include=FALSE}
+# Names items in list to truncated version of file name via stringr
+my_names <- str_replace(basename(my_files), pattern = ".pvals", replacement = "")
+#names(my_data) <- my_names
+
+# Names columns in each data.frame for easier reasoning
+for (i in seq_along(my_data)) {
+    names(my_data[[i]]) <- c("Isoform", "NegP", "PosP")  # Here PosP is observed disorder above average disorder
+                                                         # NegP is then oserved disorder below average disorder
+}
+```
+
+```{r data-subsetting, include=FALSE}
+# Subset to only selected isoforms
+for (i in seq_along(my_data)) {
+  ### Read in each line of data.frame and determine these additional values:
+  ### isoform_length AND number_of_mutations 
+  # Determine the unique isoform codes by removing isoform number
+  unique_entries <- unique(stringr::str_replace(my_data[[i]]$Isoform, 
+                                         pattern=".[:digit:]{3}", 
+                                         replacement=""))
+  
+  select_frame <- data.frame(Isoform=character(length = length(unique_entries)),
+                             PosP=numeric(length = length(unique_entries)),
+                             NegP=numeric(length = length(unique_entries))
+                             )
+  
+  temp_frame <- data.frame(Isoform=character(length = length(unique_entries)),
+                           PosP=numeric(length = length(unique_entries)),
+                           NegP=numeric(length = length(unique_entries)),
+                           Length=numeric(length = length(unique_entries)),
+                           NumMuts=numeric(length = length(unique_entries))
+                           )
+  
+  
+  
+  # Order the new data_frame and output only the "top" isoform
+  
+  SELECT_ROW <- longDataFrame[with(longDataFrame,
+                                         order(-numMuts, isoLength, isoName)),][1,]
+}
+```
+
+
+# Summary of P-vals
+```{r summary_of_pvals}
+tot_num_results <- vector(length = length(my_data))
+num_pos_results <- vector(length = length(my_data))
+num_neg_results <- vector(length = length(my_data))
+
+for (i in seq_along(my_data)) {
+  tot_num_results[i] <- length(my_data[[i]]$PosP)
+  num_pos_results[i] <- sum(my_data[[i]]$PosP < my_data[[i]]$NegP)
+  num_neg_results[i] <- sum(my_data[[i]]$PosP < my_data[[i]]$NegP)
+}
+
+knitr::kable(data.frame(Source=my_names, 
+                        Total_Results=tot_num_results, 
+                        Positive_Results=num_pos_results, 
+                        Negative_Results=num_neg_results))
+```
+
