@@ -6,7 +6,7 @@
 import sys
 from getopt import GetoptError, getopt
 from multiprocessing import Pool, cpu_count
-from os import path, makedirs, listdir
+from os import path, makedirs, listdir, remove
 from os.path import basename
 import urllib2
 import xml.etree.ElementTree as ET
@@ -70,6 +70,9 @@ def main():
     # Recursively build output_directory path
     if not path.exists(output_directory):
         makedirs(output_directory)
+    else:
+        remove(path.join(output_directory,
+                         "all_regions" + ".csv"))
 
 
 def create_foldindex_file((gene_w_isoform_num, fasta_sequence)):
@@ -110,7 +113,10 @@ def create_foldindex_file((gene_w_isoform_num, fasta_sequence)):
         # Define output file
         foldindex_file = open(path.join(output_directory,
                                         gene_w_isoform_num + ".csv"), "w")
+        cat_foldindex_file = open(path.join(output_directory,
+                                            "all_regions" + ".csv"), "a")
         foldindex_csv = csv.writer(foldindex_file)
+        cat_foldindex_csv = csv.writer(cat_foldindex_file)
 
         # Writer header row to CSV
         foldindex_csv.writerow(['Start',
@@ -118,6 +124,12 @@ def create_foldindex_file((gene_w_isoform_num, fasta_sequence)):
                                 'Length',
                                 'Score',
                                 'STD'])
+        cat_foldindex_csv.writerow(['Isoform',
+                                    'Start',
+                                    'End',
+                                    'Length',
+                                    'Score',
+                                    'STD'])
 
         for segment in root.find("segments").findall("segment"):
             start = segment.get('start')
@@ -128,9 +140,11 @@ def create_foldindex_file((gene_w_isoform_num, fasta_sequence)):
 
             # Define order of elements to match headers
             entry = [start, end, length, score, std]
+            cat_entry = [gene_w_isoform_num, start, end, length, score, std]
 
             # Write entry to file
             foldindex_csv.writerow(entry)
+            cat_foldindex_csv.writerow(cat_entry)
 
         foldindex_file.close()
     else:
