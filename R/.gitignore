@@ -5,7 +5,6 @@
 outputs/*
 figs/*
 #processing/*
-
 # Nohup
 nohup.out
 # History files
@@ -33,4 +32,3 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 packrat/lib*/
-packrat/src/
