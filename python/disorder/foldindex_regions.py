@@ -22,6 +22,7 @@ foldindexName = "foldindex"
 
 fasta_directory = path.join(dataDir, refSeqName)
 output_directory = path.join(dataDir, refSeqName, foldindexName)
+cat_foldindex_path = path.join(output_directory, "all_regions" + ".csv")
 
 foldindex_url = "http://bioportal.weizmann.ac.il/fldbin/findex?m=xml&sq="
 
@@ -39,7 +40,7 @@ def main():
     """
     A simple wrapper for all CLI options
     """
-    global fasta_directory, output_directory
+    global fasta_directory, output_directory, cat_foldindex_path
 
     # Enables command-line options via getopt and sys packages
     try:
@@ -66,13 +67,15 @@ def main():
         # Reassign output_directory
         if opt in ("-o", "--output"):
             output_directory = str(arg)
+            cat_foldindex_path = path.join(output_directory, "all_regions" + ".csv")
 
     # Recursively build output_directory path
     if not path.exists(output_directory):
         makedirs(output_directory)
     else:
-        remove(path.join(output_directory,
-                         "all_regions" + ".csv"))
+        print("Deleting file at: ", cat_foldindex_path)
+        if path.exists(cat_foldindex_path):
+            remove(cat_foldindex_path)
 
 
 def create_foldindex_file((gene_w_isoform_num, fasta_sequence)):
@@ -86,7 +89,7 @@ def create_foldindex_file((gene_w_isoform_num, fasta_sequence)):
     Run by Pool.map() with data from generate_pairs()
     :return: file at output_directory/<gene_w_isoform_num>.csv
     """
-    global output_directory, foldindex_url
+    global output_directory, foldindex_url, cat_foldindex_path
 
     print("Now processing: " + gene_w_isoform_num)
 
@@ -113,8 +116,7 @@ def create_foldindex_file((gene_w_isoform_num, fasta_sequence)):
         # Define output file
         foldindex_file = open(path.join(output_directory,
                                         gene_w_isoform_num + ".csv"), "w")
-        cat_foldindex_file = open(path.join(output_directory,
-                                            "all_regions" + ".csv"), "a")
+        cat_foldindex_file = open(cat_foldindex_path, "a")
         foldindex_csv = csv.writer(foldindex_file)
         cat_foldindex_csv = csv.writer(cat_foldindex_file)
 
