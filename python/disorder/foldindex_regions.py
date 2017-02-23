@@ -11,6 +11,8 @@ from os.path import basename
 import urllib2
 import xml.etree.ElementTree as ET
 import csv
+import shutil
+import glob
 
 dataDir = "../../../disorderCancer/data/"  # Default relative path from pwd/current dir
 allMAFsName = "allMAFs"  # The name of the allMAFs dir in dataDir
@@ -88,6 +90,7 @@ def create_foldindex_file((gene_w_isoform_num, fasta_sequence)):
 
     Run by Pool.map() with data from generate_pairs()
     :return: file at output_directory/<gene_w_isoform_num>.csv
+    each file is of the tsv format: ['Isoform', 'Start', 'End', 'Length', 'Score', 'STD']
     """
     global output_directory, foldindex_url, cat_foldindex_path
 
@@ -103,7 +106,10 @@ def create_foldindex_file((gene_w_isoform_num, fasta_sequence)):
         # Redirect STDERR to STDOUT (ensures screen display)
         sys.stdout = sys.stderr
         # Print help information
-        print(str(err))
+        # Likely is HTTP Error 414: Request-URI Too Large
+        # These sequences must be processed manually
+        # Due to the server limiting the URI length
+        print(str(err) + " on processing " + gene_w_isoform_num)
         sys.exit(2)
 
     # Parse XML string
@@ -116,22 +122,7 @@ def create_foldindex_file((gene_w_isoform_num, fasta_sequence)):
         # Define output file
         foldindex_file = open(path.join(output_directory,
                                         gene_w_isoform_num + ".csv"), "w")
-        cat_foldindex_file = open(cat_foldindex_path, "a")
         foldindex_csv = csv.writer(foldindex_file)
-        cat_foldindex_csv = csv.writer(cat_foldindex_file)
-
-        # Writer header row to CSV
-        foldindex_csv.writerow(['Start',
-                                'End',
-                                'Length',
-                                'Score',
-                                'STD'])
-        cat_foldindex_csv.writerow(['Isoform',
-                                    'Start',
-                                    'End',
-                                    'Length',
-                                    'Score',
-                                    'STD'])
 
         for segment in root.find("segments").findall("segment"):
             start = segment.get('start')
@@ -141,12 +132,10 @@ def create_foldindex_file((gene_w_isoform_num, fasta_sequence)):
             std = segment.get('std')
 
             # Define order of elements to match headers
-            entry = [start, end, length, score, std]
-            cat_entry = [gene_w_isoform_num, start, end, length, score, std]
+            entry = [gene_w_isoform_num, start, end, length, score, std]
 
             # Write entry to file
             foldindex_csv.writerow(entry)
-            cat_foldindex_csv.writerow(cat_entry)
 
         foldindex_file.close()
     else:
@@ -216,3 +205,11 @@ if __name__ == "__main__":
 
     # Close the Pool
     pool.close()
+
+    # Post-processing concatenation into cat_foldindex_csv
+    with open(cat_foldindex_path, "w") as concat_file:
+        for filename in glob.glob(path.join(output_directory, "*")):
+            if filename == basename(cat_foldindex_path):
+                continue
+            with open(filename, 'r') as readfile:
+                shutil.copyfileobj(readfile, concat_file)
