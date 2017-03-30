@@ -243,6 +243,39 @@ createEnrichmentTable <- function(subset, termCentricAnn,
 }
 
 ###############################################################################
+# Function by Ryan Hagenson
+# Purpose: Provide an alternative createEnrichmentTable function that 
+#          returns a data.frame rather than writes to file.
+#          Almost entirely identical to original createEnrichmentTable function
+###############################################################################
+
+createEnrichmentFrame <- function(subset, termCentricAnn,
+                                  enrichment, GOGraph, GODict,
+                                  pvalue) {
+  ## create a text file read for parsing with the enriched terms below the
+  ## given p-value
+  
+  sortedTissueEnrichment <- sort(enrichment)
+  termsPvalues <-sortedTissueEnrichment[sortedTissueEnrichment < pvalue]
+  genesContrib <- c()
+  
+  ## add the genes contributing to each enriched term
+  for (term in names(termsPvalues)) {
+    withTerm <- intersect(haveTerm(termCentricAnn, term, GOGraph),
+                          subset)
+    withTerm <- paste(withTerm, collapse=",")
+    genesContrib <- c(genesContrib, withTerm)
+  }
+  tableEnrichment <- cbind(names(termsPvalues), GODict[names(termsPvalues)],
+                           signif(termsPvalues, 3), genesContrib)
+  
+  return(tableEnrichment)
+}
+###############################################################################
+# End function by Ryan Hagenson
+###############################################################################
+
+###############################################################################
 
 createGODict <- function(goFile) {
   ## create a dictionary that assignes the definition of a GO term
