@@ -3,9 +3,10 @@
 library(ggplot2)
 source("R-defs/isoform_length.R")
 
-lollipop_plot <- function(isoform_name, cancer_file) {
+lollipop_plot <- function(isoform_name, cancer_file, legend=F) {
+  len <- isoform_length(isoform_name)
   # Define the data.frame used for plotting
-  df_c <- data.frame(Pos = 1:isoform_length(isoform_name))
+  df_c <- data.frame(Pos = 1:len)
   
   cancer <- read.delim(cancer_file, header=F)
   
@@ -14,8 +15,18 @@ lollipop_plot <- function(isoform_name, cancer_file) {
     sum(sub_cancer$V6 == pos)
   })
   
-  ggplot(df_c, aes(Pos, Muts)) +
+  plot <- ggplot(df_c, aes(Pos, Muts)) +
     geom_point() +
     geom_segment(aes(x = Pos, y = 0, xend = Pos, yend = Muts)) +
-    geom_hline(yintercept = 0, lty = 2)
+    geom_hline(yintercept = 0, lty = 2) +
+    xlab("Residue Position") + 
+    ylab("Number of Mutations") + 
+    ggtitle(as.character(isoform_name)) +
+    xlim(0, len)
+  
+  if(legend) {
+    plot <- plot + aes(colour = df_c$Muts) + theme(legend.title = element_blank())
+  }
+  
+  return(plot)
 }
